@@ -69,7 +69,7 @@ svg.append('svg:defs').append('svg:marker')
 
 // line displayed when dragging new nodes
 var drag_line = svg.append('svg:path')
-  .attr('class', 'link hidden')
+  .attr('class', 'link dragline hidden')
   .attr('d', 'M0,0L0,0');
 
 // handles to node, edge, and label element groups
@@ -163,6 +163,16 @@ function restart() {
     .style('fill', function(d) { return (d === selected_node) ? d3.rgb(colors(d.id)).brighter().toString() : colors(d.id); })
     .style('stroke', function(d) { return d3.rgb(colors(d.id)).darker().toString(); })
     .classed('reflexive', function(d) { return d.reflexive; })
+    .on('mouseover', function(d) {
+      if(appMode !== MODE.EDIT || !mousedown_node || d === mousedown_node) return;
+      // enlarge target node
+      d3.select(this).attr('transform', 'scale(1.1)');
+    })
+    .on('mouseout', function(d) {
+      if(appMode !== MODE.EDIT || !mousedown_node || d === mousedown_node) return;
+      // unenlarge target node
+      d3.select(this).attr('transform', '');
+    })
     .on('mousedown', function(d) {
       // select node
       mousedown_node = d;
@@ -191,6 +201,9 @@ function restart() {
       // check for drag-to-self
       mouseup_node = d;
       if(mouseup_node === mousedown_node) { resetMouseVars(); return; }
+
+      // unenlarge target node
+      d3.select(this).attr('transform', '');
 
       // add link (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
@@ -247,12 +260,18 @@ function restart() {
   // remove old nodes
   circle.exit().remove();
 
+  // prevent I-bar cursor on drag
+  if(d3.event) d3.event.preventDefault();
+
   // set the graph in motion
   force.start();
 }
 
 
 function mousedown() {
+  // because :active only works in WebKit?
+  svg.classed('active', true);
+
   if(mousedown_node || mousedown_link) return;
 
   // insert new state at point
@@ -280,6 +299,10 @@ function mouseup() {
     drag_line.classed('hidden', true)
       .attr('marker-end', '');
   }
+
+  // because :active only works in WebKit?
+  svg.classed('active', false);
+
   // clear mouse event vars
   resetMouseVars();
 }
@@ -340,7 +363,8 @@ function keydown() {
 
 function setAppMode(v) {
   if(v === MODE.EDIT) {
-    svg.on('mousedown', mousedown)
+    svg.classed('edit', true)
+      .on('mousedown', mousedown)
       .on('mousemove', mousemove)
       .on('mouseup', mouseup);
     d3.select(window)
@@ -356,7 +380,8 @@ function setAppMode(v) {
 
     appMode = MODE.EDIT;
   } else if(v === MODE.VIEW) {
-    svg.on('mousedown', null)
+    svg.classed('edit', false)
+      .on('mousedown', null)
       .on('mousemove', null)
       .on('mouseup', null);
     d3.select(window)
