@@ -18,19 +18,19 @@ h1 {
   margin-bottom: 8px;
 }
 
-#app-container {
+#app-body {
   border: 1px solid #e3e3e3;
   border-radius: 4px;
   width: 960px;
   height: 540px;
 }
 
-#app-container > div {
+#app-body > div {
   display: inline-block;
   float: left;
 }
 
-#app-container .panel {
+#app-body .panel {
   width: 280px;
   height: 500px;
   padding: 20px 19px 20px 20px;
@@ -39,7 +39,7 @@ h1 {
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
 }
 
-#app-container .graph {
+#app-body .graph {
   width: 640px;
   height: 540px;
 }

@@ -11,18 +11,20 @@
   <body>
     <div id="page-container">
       <h1>Modal Logic Playground</h1>
-      <div id="mode-select" class="btn-group" data-toggle="buttons-radio">
-        <button type="button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
-          <i class="icon-pencil icon-white"></i> Edit
-        </button>
-        <button type="button" class="btn btn-primary" onclick="setAppMode(MODE.VIEW)">
-          <i class="icon-eye-open icon-white"></i> View
-        </button>
-      </div>
-      <div id="app-container">
-        <div class="panel"></div>
-        <div class="graph"></div>
-      </div>
+      <section id="app">
+        <div id="mode-select" class="btn-group" data-toggle="buttons-radio">
+          <button type="button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
+            <i class="icon-pencil icon-white"></i> Edit
+          </button>
+          <button type="button" class="btn btn-primary" onclick="setAppMode(MODE.VIEW)">
+            <i class="icon-eye-open icon-white"></i> View
+          </button>
+        </div>
+        <div id="app-body">
+          <div class="panel"></div>
+          <div class="graph"></div>
+        </div>
+      </section>
     </div>
   </body>
 

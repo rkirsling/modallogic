@@ -2,8 +2,7 @@
  * MPL: A library for parsing and evaluating modal propositional logic.
  *
  * @author  Ross Kirsling
- * @date    2012.01.28
- * @version 1.0
+ * @version 1.0.0
  */
 
 var MPL = (function() {

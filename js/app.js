@@ -11,11 +11,11 @@ var MODE = {
     appMode = MODE.EDIT;
 
 // set up SVG for D3
-var width  = 640,//960,
+var width  = 640,
     height = 540,
     colors = d3.scale.category10();
 
-var svg = d3.select('#app-container .graph')
+var svg = d3.select('#app-body .graph')
   .append('svg')
   .attr('width', width)
   .attr('height', height);
@@ -154,8 +154,7 @@ function restart() {
     .classed('reflexive', function(d) { return d.reflexive; });
 
   // add new nodes
-  var g = circle.enter().append('svg:g');//.style('opacity',0);
-  //g.transition().style('opacity',1);
+  var g = circle.enter().append('svg:g');
 
   g.append('svg:circle')
     .attr('class', 'node')
@@ -376,7 +375,7 @@ function setAppMode(v) {
       .on('touchstart.drag', null);
 
     //TEMP
-    $('#app-container .panel').html(panelText[0]);
+    $('#app-body .panel').html(panelText[0]);
 
     appMode = MODE.EDIT;
   } else if(v === MODE.VIEW) {
@@ -395,7 +394,7 @@ function setAppMode(v) {
       .classed('hidden', true);
 
     //TEMP
-    $('#app-container .panel').html(panelText[1]);
+    $('#app-body .panel').html(panelText[1]);
 
     appMode = MODE.VIEW;
   }
@@ -434,7 +433,7 @@ var panelText = [
     '</li>' +
   '</ul>',
   '<ul class="unstyled">' +
-    '<li>Click a state or a transition to <strong>select</strong> it</li>' +
+    '<li>Click a state to <strong>select</strong> it</li>' +
     '<br>' +
     '<li>Drag states to <strong>move</strong> the graph layout</li>' +
   '</ul>'
