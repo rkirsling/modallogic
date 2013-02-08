@@ -359,9 +359,12 @@ function keydown() {
   }
 }
 
+var buttonGroup = d3.select('#app .btn-group'),
+    panel       = d3.select('#app-body .panel');
 
-function setAppMode(v) {
-  if(v === MODE.EDIT) {
+function setAppMode(newMode) {
+  // mode-specific settings
+  if(newMode === MODE.EDIT) {
     svg.classed('edit', true)
       .on('mousedown', mousedown)
       .on('mousemove', mousemove)
@@ -369,16 +372,12 @@ function setAppMode(v) {
     d3.select(window)
       .on('keydown', keydown);
 
+    // "uncall" force.drag
     // see: https://groups.google.com/forum/?fromgroups=#!topic/d3-js/-HcNN1deSow
     circle
       .on('mousedown.drag', null)
       .on('touchstart.drag', null);
-
-    //TEMP
-    $('#app-body .panel').html(panelText[0]);
-
-    appMode = MODE.EDIT;
-  } else if(v === MODE.VIEW) {
+  } else if(newMode === MODE.VIEW) {
     svg.classed('edit', false)
       .on('mousedown', null)
       .on('mousemove', null)
@@ -388,56 +387,24 @@ function setAppMode(v) {
 
     circle.call(force.drag);
 
-    // needed?
     drag_line
       .attr('marker-end', '')
       .classed('hidden', true);
+  } else return;
 
-    //TEMP
-    $('#app-body .panel').html(panelText[1]);
+  // switch button and panel states and set new mode
+  buttonGroup.selectAll('button').classed('active', false);
+  buttonGroup.select('button:nth-child(' + (newMode+1) + ')').classed('active', true);
+  panel.selectAll('.tab-pane').classed('active', false);
+  panel.select('.tab-pane:nth-child(' + (newMode+1) + ')').classed('active', true);
+  appMode = newMode;
 
-    appMode = MODE.VIEW;
-  }
-
-  // needed?
   selected_link = null;
   selected_node = null;
   resetMouseVars();
 
   restart();
 }
-
-// TEMP
-var panelText = [
-  '<ul class="unstyled">' +
-    '<li>Click in the open space to <strong>add a state</strong></li>' +
-    '<br>' +
-    '<li>Drag between states to <strong>add a transition</strong></li>' +
-    '<br>' +
-    '<li>Click a state or a transition to <strong>select</strong> it</li>' +
-    '<br>' +
-    '<li>' +
-      'When a state is selected:' +
-      '<ul>' +
-        '<li><strong>R</strong> toggles reflexivity</li>' +
-        '<li><strong>Delete</strong> removes the state</li>' +
-      '</ul>' +
-    '</li>' +
-    '<br>' +
-    '<li>' +
-      'When a transition is selected:' +
-      '<ul>' +
-        '<li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>' +
-        '<li><strong>Delete</strong> removes the transition</li>' +
-      '</ul>' +
-    '</li>' +
-  '</ul>',
-  '<ul class="unstyled">' +
-    '<li>Click a state to <strong>select</strong> it</li>' +
-    '<br>' +
-    '<li>Drag states to <strong>move</strong> the graph layout</li>' +
-  '</ul>'
-];
 
 // app starts here
 setAppMode(MODE.EDIT);

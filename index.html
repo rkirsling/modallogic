@@ -12,7 +12,7 @@
     <div id="page-container">
       <h1>Modal Logic Playground</h1>
       <section id="app">
-        <div id="mode-select" class="btn-group" data-toggle="buttons-radio">
+        <div id="mode-select" class="btn-group">
           <button type="button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
             <i class="icon-pencil icon-white"></i> Edit
           </button>
@@ -21,7 +21,40 @@
           </button>
         </div>
         <div id="app-body">
-          <div class="panel"></div>
+          <div class="panel tab-content">
+            <div class="tab-pane active">
+              <ul class="unstyled">
+                <li>Click in the open space to <strong>add a state</strong></li>
+                <br>
+                <li>Drag between states to <strong>add a transition</strong></li>
+                <br>
+                <li>Click a state or a transition to <strong>select</strong> it</li>
+                <br>
+                <li>
+                  When a state is selected:
+                  <ul>
+                    <li><strong>R</strong> toggles reflexivity</li>
+                    <li><strong>Delete</strong> removes the state</li>
+                  </ul>
+                </li>
+                <br>
+                <li>
+                  When a transition is selected:
+                  <ul>
+                    <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>
+                    <li><strong>Delete</strong> removes the transition</li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+            <div class="tab-pane">
+              <ul class="unstyled">
+                <li>Click a state to <strong>select</strong> it</li>
+                <br>
+                <li>Drag states to <strong>move</strong> the graph layout</li>
+              </ul>
+            </div>
+          </div>
           <div class="graph"></div>
         </div>
       </section>
@@ -29,8 +62,7 @@
   </body>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-  <script src="js/bootstrap.min.js"></script>
+  <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>-->
   <!--<script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
