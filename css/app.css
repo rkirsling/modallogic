@@ -39,6 +39,27 @@ h1 {
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
 }
 
+#app-body .panel .tab-pane {
+  height: 100%;
+  position: relative;
+}
+
+div.instructions {
+  position: absolute;
+  bottom: 0;
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #e3e3e3;
+}
+
+div.instructions > ul {
+  margin-bottom: 0;
+}
+
+div.instructions > ul > li:not(:last-child) {
+  margin-bottom: 10px;
+}
+
 #app-body .graph {
   width: 640px;
   height: 540px;

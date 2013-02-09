@@ -6,7 +6,7 @@
 // app mode constants
 var MODE = {
       EDIT: 0,
-      VIEW: 1
+      EVAL: 1
     },
     appMode = MODE.EDIT;
 
@@ -377,7 +377,7 @@ function setAppMode(newMode) {
     circle
       .on('mousedown.drag', null)
       .on('touchstart.drag', null);
-  } else if(newMode === MODE.VIEW) {
+  } else if(newMode === MODE.EVAL) {
     svg.classed('edit', false)
       .on('mousedown', null)
       .on('mousemove', null)

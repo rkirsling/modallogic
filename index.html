@@ -13,46 +13,45 @@
       <h1>Modal Logic Playground</h1>
       <section id="app">
         <div id="mode-select" class="btn-group">
-          <button type="button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
-            <i class="icon-pencil icon-white"></i> Edit
+          <button type="button" id="edit-mode-button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
+            <i class="icon-pencil icon-white"></i> Edit Model
           </button>
-          <button type="button" class="btn btn-primary" onclick="setAppMode(MODE.VIEW)">
-            <i class="icon-eye-open icon-white"></i> View
+          <button type="button" id="eval-mode-button" class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
+            <i class="icon-eye-open icon-white"></i> Evaluate Formula
           </button>
         </div>
         <div id="app-body">
           <div class="panel tab-content">
-            <div class="tab-pane active">
-              <ul class="unstyled">
-                <li>Click in the open space to <strong>add a state</strong></li>
-                <br>
-                <li>Drag between states to <strong>add a transition</strong></li>
-                <br>
-                <li>Click a state or a transition to <strong>select</strong> it</li>
-                <br>
-                <li>
-                  When a state is selected:
-                  <ul>
-                    <li><strong>R</strong> toggles reflexivity</li>
-                    <li><strong>Delete</strong> removes the state</li>
-                  </ul>
-                </li>
-                <br>
-                <li>
-                  When a transition is selected:
-                  <ul>
-                    <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>
-                    <li><strong>Delete</strong> removes the transition</li>
-                  </ul>
-                </li>
-              </ul>
+            <div id="edit-pane" class="tab-pane active">
+              <div class="instructions">
+                <ul class="unstyled">
+                  <li>Click in the open space to <strong>add a state</strong></li>
+                  <li>Drag between states to <strong>add a transition</strong></li>
+                  <li>Click a state or a transition to <strong>select</strong> it</li>
+                  <li>
+                    When a state is selected:
+                    <ul>
+                      <li><strong>R</strong> toggles reflexivity</li>
+                      <li><strong>Delete</strong> removes the state</li>
+                    </ul>
+                  </li>
+                  <li>
+                    When a transition is selected:
+                    <ul>
+                      <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>
+                      <li><strong>Delete</strong> removes the transition</li>
+                    </ul>
+                  </li>
+                </ul>
+              </div>
             </div>
-            <div class="tab-pane">
-              <ul class="unstyled">
-                <li>Click a state to <strong>select</strong> it</li>
-                <br>
-                <li>Drag states to <strong>move</strong> the graph layout</li>
-              </ul>
+            <div id="eval-pane" class="tab-pane">
+              <div class="instructions">
+                <ul class="unstyled">
+                  <li>Click a state to <strong>select</strong> it</li>
+                  <li>Drag states to <strong>move</strong> the graph layout</li>
+                </ul>
+              </div>
             </div>
           </div>
           <div class="graph"></div>
@@ -62,7 +61,6 @@
   </body>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <!--<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>-->
   <!--<script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
