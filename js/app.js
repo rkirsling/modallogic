@@ -16,7 +16,7 @@ var MODE = {
     },
     appMode = MODE.EDIT;
 
-// initial Kripke model
+// initial MPL model
 var propvars = ['p','q','r','s','t'],
     states   = [
       [false, false, false, false, false],
@@ -37,7 +37,7 @@ var svg = d3.select('#app-body .graph')
   .attr('width', width)
   .attr('height', height);
 
-// set up initial nodes and links (matches Kripke model)
+// set up initial nodes and links (matches MPL model)
 var nodes = [
       {id: 0, vals: [false, false, false, false, false], reflexive: false},
       {id: 1, vals: [false, true,  false, true,  false], reflexive: true },

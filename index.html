@@ -65,6 +65,20 @@
                 <ul class="unstyled">
                   <li>Click a state to <strong>select</strong> it</li>
                   <li>Drag states to <strong>move</strong> the graph layout</li>
+                  <li>
+                    When entering a formula:
+                    <ul>
+                      <li>use <code>~A</code> for $\lnot{}A$</li>
+                      <li>use <code>[]A</code> for $\Box{}A$</li>
+                      <li>use <code>&lt;&gt;A</code> for $\Diamond{}A$</li>
+                      <li>use <code>(A &amp; B)</code> for $(A\land{}B)$</li>
+                      <li>use <code>(A | B)</code> for $(A\lor{}B)$</li>
+                      <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
+                      <li>use <code>(A &lt;-&gt; B)</code> for $(A\leftrightarrow{}B)$</li>
+
+                    </ul>
+                  </li>
+                  <li><strong>NB:</strong> Input is parenthesis-sensitive!
                 </ul>
               </div>
             </div>
@@ -76,12 +90,12 @@
   </body>
 
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <!--<script type="text/x-mathjax-config">
+  <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
       tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
     });
   </script>
-  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>-->
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
   <script src="js/MPL.js"></script>
   <script src="js/app.js"></script>
 </html>
