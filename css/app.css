@@ -44,6 +44,15 @@ h1 {
   position: relative;
 }
 
+.inactive {
+  display: none;
+}
+
+td.var-name {
+  font-weight: bold;
+  padding: 0 5px 0 10px;
+}
+
 div.instructions {
   position: absolute;
   bottom: 0;

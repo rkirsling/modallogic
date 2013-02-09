@@ -23,6 +23,18 @@
         <div id="app-body">
           <div class="panel tab-content">
             <div id="edit-pane" class="tab-pane active">
+              <div class="alert alert-info">
+                <div><strong>Selected state: </strong><span class="selected-node-id"></span></div>
+                <table class="propvars inactive">
+                  <tbody>
+                    <tr class="var-0"><td class="var-name">p:</td><td class="var-value"></td></tr>
+                    <tr class="var-1"><td class="var-name">q:</td><td class="var-value"></td></tr>
+                    <tr class="var-2 inactive"><td class="var-name">r:</td><td class="var-value"></td></tr>
+                    <tr class="var-3 inactive"><td class="var-name">s:</td><td class="var-value"></td></tr>
+                    <tr class="var-4 inactive"><td class="var-name">t:</td><td class="var-value"></td></tr>
+                  <tbody>
+                </table>
+              </div>
               <div class="instructions">
                 <ul class="unstyled">
                   <li>Click in the open space to <strong>add a state</strong></li>
@@ -46,6 +58,9 @@
               </div>
             </div>
             <div id="eval-pane" class="tab-pane">
+              <div class="alert alert-info">
+                <strong>Selected state: </strong><span class="selected-node-id"></span>
+              </div>
               <div class="instructions">
                 <ul class="unstyled">
                   <li>Click a state to <strong>select</strong> it</li>
@@ -66,20 +81,7 @@
       tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
     });
   </script>
-  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>-->
-  <!--<script src="js/MPL.js"></script>-->
+  <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>-->
+  <script src="js/MPL.js"></script>
   <script src="js/app.js"></script>
-
-  <!--<script>
-    // default model
-    var propvars = ['p','q'],
-        states   = [ [false, false], [false, true], [true, false], [true, true] ],
-        relation = [ [1,2], [0], [3], [1] ],
-        model    = new MPL.Model(propvars, states, relation),
-        curState = 0; // will not actually be used
-
-    // temp example
-    var testWff = MPL.wffToJSON('[](<>p | ~<>q)'),
-        truthVal = MPL.truth(model, curState, testWff);
-  </script>-->
 </html>

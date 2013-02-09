@@ -3,12 +3,29 @@
  * D3 directed graph code based largely on the tutorials at https://github.com/mbostock/d3/wiki/Gallery
  */
 
+/*
+// temp example of eval
+var testWff = MPL.wffToJSON('[](<>p | ~<>q)'),
+    truthVal = MPL.truth(model, curState, testWff);
+*/
+
 // app mode constants
 var MODE = {
       EDIT: 0,
       EVAL: 1
     },
     appMode = MODE.EDIT;
+
+// initial Kripke model
+var propvars = ['p','q','r','s','t'],
+    states   = [
+      [false, false, false, false, false],
+      [false, true,  false, true,  false],
+      [true,  false, true,  false, true ]
+    ],
+    relation = [ [1,2], [0,1,2], [] ],
+    model    = new MPL.Model(propvars, states, relation),
+    varCount = 2;
 
 // set up SVG for D3
 var width  = 640,
@@ -20,19 +37,17 @@ var svg = d3.select('#app-body .graph')
   .attr('width', width)
   .attr('height', height);
 
-// set up initial nodes and links
+// set up initial nodes and links (matches Kripke model)
 var nodes = [
-      {id: 0, vals: [false, false], reflexive: false},
-      {id: 1, vals: [false, true ], reflexive: false},
-      {id: 2, vals: [true,  false], reflexive: false},
-      {id: 3, vals: [true,  true ], reflexive: true }
+      {id: 0, vals: [false, false, false, false, false], reflexive: false},
+      {id: 1, vals: [false, true,  false, true,  false], reflexive: true },
+      {id: 2, vals: [true,  false, true,  false, true ], reflexive: false}
     ],
-    lastNodeId = 3,
+    lastNodeId = 2,
     links = [
       {source: nodes[0], target: nodes[1], left: true,  right: true },
       {source: nodes[0], target: nodes[2], left: false, right: true },
-      {source: nodes[1], target: nodes[3], left: true,  right: false},
-      {source: nodes[2], target: nodes[3], left: false, right: true }
+      {source: nodes[1], target: nodes[2], left: false, right: true}
     ];
 
 // init D3 force layout
@@ -89,6 +104,49 @@ function resetMouseVars() {
   mousedown_link = null;
 }
 
+// handle to variable table in panel
+var varTable = d3.select('#app-body .panel table.propvars');
+
+// set selected node and notify panel of changes 
+function setSelectedNode(node) {
+  selected_node = node;
+
+  // update selected node display
+  d3.selectAll('.selected-node-id').html(selected_node ? selected_node.id : "none");
+
+  // update variable table
+  for(var i = 0; i < propvars.length; i++) {
+    varTable.select('tr.var-'+i+' .var-value').html(selected_node ? selected_node.vals[i].toString() : '');
+  }
+  varTable.classed('inactive', function() { return !selected_node; });
+}
+
+// get truth assignment for node as a displayable string
+function makeAssignmentString(node) {
+  var vals = node.vals,
+      outputVars = [];
+  
+  for(var i = 0; i < varCount; i++) {
+    // attach 'not' symbol to false values
+    outputVars.push((vals[i] ? '' : '\u00ac') + propvars[i]);
+  }
+
+  return outputVars.join(', ');
+}
+
+// set # of vars currently in use and notify panel of changes
+function setVarCount(count) {
+  varCount = count;
+
+  //update graph text
+  circle.selectAll('text:not(.id)').text(makeAssignmentString);
+
+  //update variable table
+  for(var i = 0; i < propvars.length; i++) {
+    if(i <= varCount) varTable.select('tr.var-'+i).classed('inactive', false);
+    else varTable.select('tr.var-'+i).classed('inactive', true);
+  }
+}
 
 // update force layout (called automatically each iteration)
 function tick() {
@@ -136,7 +194,7 @@ function restart() {
       mousedown_link = d;
       if(mousedown_link === selected_link) selected_link = null;
       else selected_link = mousedown_link;
-      selected_node = null;
+      setSelectedNode(null);
       restart();
     });
 
@@ -175,8 +233,8 @@ function restart() {
     .on('mousedown', function(d) {
       // select node
       mousedown_node = d;
-      if(mousedown_node === selected_node) selected_node = null;
-      else selected_node = mousedown_node;
+      if(mousedown_node === selected_node) setSelectedNode(null);
+      else setSelectedNode(mousedown_node);
       selected_link = null;
 
       if(appMode === MODE.EDIT) {
@@ -204,7 +262,10 @@ function restart() {
       // unenlarge target node
       d3.select(this).attr('transform', '');
 
-      // add link (update if exists)
+      // add transition to model
+      model.relation[mousedown_node.id].push(mouseup_node.id);
+
+      // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
       var source, target, direction;
       if(mousedown_node.id < mouseup_node.id) {
@@ -232,7 +293,7 @@ function restart() {
 
       // select new link
       selected_link = link;
-      selected_node = null;
+      setSelectedNode(null);
       restart();
     })
 
@@ -248,13 +309,13 @@ function restart() {
       .attr('x', 16)
       .attr('y', 4)
       .attr('class', 'shadow')
-      .text(function(d) { return d.vals.join(); });
+      .text(makeAssignmentString);
 
   // text foreground
   g.append('svg:text')
       .attr('x', 16)
       .attr('y', 4)
-      .text(function(d) { return d.vals.join(); });
+      .text(makeAssignmentString);
 
   // remove old nodes
   circle.exit().remove();
@@ -266,19 +327,23 @@ function restart() {
   force.start();
 }
 
-
 function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
   if(mousedown_node || mousedown_link) return;
 
-  // insert new state at point
+  // insert new node at point
   var point = d3.mouse(this),
-      node = {id: ++lastNodeId, vals: [false,false], reflexive: false};
+      vals = propvars.map(function() { return false; }),
+      node = {id: ++lastNodeId, vals: vals, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
+
+  // add state to model
+  model.states.push(vals);
+  model.relation.push([]);
 
   restart();
 }
@@ -306,11 +371,40 @@ function mouseup() {
   resetMouseVars();
 }
 
+function pushTransitionToModel(sourceId, targetId) {
+  model.relation[sourceId].push(targetId);
+}
+
+function spliceTransitionFromModel(sourceId, targetId) {
+  var successors = model.relation[sourceId];
+  successors.splice(successors.indexOf(targetId), 1);
+}
+
+function removeLinkFromModel(link) {
+  var sourceId = link.source.id,
+      targetId = link.target.id;
+
+  // remove leftward transition
+  if(link.left) spliceTransitionFromModel(targetId, sourceId);
+
+  // remove rightward transition
+  if(link.right) spliceTransitionFromModel(sourceId, targetId);
+}
+
+function removeNodeFromModel(node) {
+  var id = node.id;
+
+  // remove state and outgoing transitions
+  model.states[id] = [];
+  model.relation[id] = [];
+}
+
 function spliceLinksForNode(node) {
   var toSplice = links.filter(function(l) {
     return (l.source === node || l.target === node);
   });
   toSplice.map(function(l) {
+    removeLinkFromModel(l);
     links.splice(links.indexOf(l), 1);
   });
 }
@@ -320,45 +414,78 @@ function keydown() {
   switch(d3.event.keyCode) {
     case 46: // delete
       if(selected_node) {
+        removeNodeFromModel(selected_node);
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
       } else if(selected_link) {
+        removeLinkFromModel(selected_link);
         links.splice(links.indexOf(selected_link), 1);
       }
       selected_link = null;
-      selected_node = null;
+      setSelectedNode(null);
       restart();
       break;
     case 66: // B
       if(selected_link) {
+        var sourceId = selected_link.source.id,
+            targetId = selected_link.target.id;
         // set link direction to both left and right
-        selected_link.left = true;
-        selected_link.right = true;
+        if(!selected_link.left) {
+          selected_link.left = true;
+          pushTransitionToModel(targetId, sourceId);
+        }
+        if(!selected_link.right) {
+          selected_link.right = true;
+          pushTransitionToModel(sourceId, targetId);
+        }
       }
       restart();
       break;
     case 76: // L
       if(selected_link) {
+        var sourceId = selected_link.source.id,
+            targetId = selected_link.target.id;
         // set link direction to left only
-        selected_link.left = true;
-        selected_link.right = false;
+        if(!selected_link.left) {
+          selected_link.left = true;
+          pushTransitionToModel(targetId, sourceId);
+        }
+        if(selected_link.right) {
+          selected_link.right = false;
+          spliceTransitionFromModel(sourceId, targetId);
+        }
       }
       restart();
       break;
     case 82: // R
       if(selected_node) {
         // toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive;
+        if(selected_node.reflexive) {
+          selected_node.reflexive = false;
+          spliceTransitionFromModel(selected_node.id, selected_node.id);
+        } else {
+          selected_node.reflexive = true;
+          pushTransitionToModel(selected_node.id, selected_node.id);
+        }
       } else if(selected_link) {
+        var sourceId = selected_link.source.id,
+            targetId = selected_link.target.id;
         // set link direction to right only
-        selected_link.left = false;
-        selected_link.right = true;
+        if(selected_link.left) {
+          selected_link.left = false;
+          spliceTransitionFromModel(targetId, sourceId);
+        }
+        if(!selected_link.right) {
+          selected_link.right = true;
+          pushTransitionToModel(sourceId, targetId);
+        }
       }
       restart();
       break;
   }
 }
 
+// handles to mode select buttons and left-hand panel
 var buttonGroup = d3.select('#app .btn-group'),
     panel       = d3.select('#app-body .panel');
 
@@ -400,7 +527,7 @@ function setAppMode(newMode) {
   appMode = newMode;
 
   selected_link = null;
-  selected_node = null;
+  setSelectedNode(null);
   resetMouseVars();
 
   restart();
