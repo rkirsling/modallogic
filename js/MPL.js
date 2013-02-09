@@ -121,6 +121,27 @@ var MPL = (function() {
   }
 
   /**
+   * Converts an (ASCII) MPL wff string to a Unicode string.
+   */
+  function wffToUnicode(wff) {
+    wff = removeWhitespace(wff);
+    return wff.replace(/~/g,    '\u00ac')
+              .replace(/\[\]/g, '\u25a1')
+              .replace(/<>/g,   '\u22c4')
+              .replace(/&/g,    ' \u2227 ')
+              .replace(/\|/g,   ' \u2228 ')
+              .replace(/<->/g,  ' \u2194 ')
+              .replace(/->/g,   ' \u2192 ');
+  }
+
+  /**
+   * Converts the JSON representation of an MPL wff to a Unicode string for displaying.
+   */
+  function jsonToUnicode(json) {
+    return wffToUnicode(jsonToWff(json));
+  }
+
+  /**
    * Constructor for Kripke model.
    * @constructor
    */
@@ -172,6 +193,8 @@ var MPL = (function() {
     jsonToWff: jsonToWff,
     wffToLaTeX: wffToLaTeX,
     jsonToLaTeX: jsonToLaTeX,
+    wffToUnicode: wffToUnicode,
+    jsonToUnicode: jsonToUnicode,
     Model: Model,
     truth: truth
   };
