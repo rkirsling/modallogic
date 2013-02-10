@@ -48,9 +48,17 @@ h1 {
   display: none;
 }
 
+div.var-count {
+  margin-bottom: 15px;
+}
+
+table.propvars {
+  margin-top: 4px;
+}
+
 td.var-name {
   font-weight: bold;
-  padding: 0 5px 0 10px;
+  padding: 0 6px;
 }
 
 div.instructions {
@@ -66,7 +74,7 @@ div.instructions > ul {
 }
 
 div.instructions > ul > li:not(:last-child) {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 #app-body .graph {

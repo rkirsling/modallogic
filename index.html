@@ -13,25 +13,50 @@
       <h1>Modal Logic Playground</h1>
       <section id="app">
         <div id="mode-select" class="btn-group">
-          <button type="button" id="edit-mode-button" class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
+          <button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
             <i class="icon-pencil icon-white"></i> Edit Model
           </button>
-          <button type="button" id="eval-mode-button" class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
+          <button class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
             <i class="icon-eye-open icon-white"></i> Evaluate Formula
           </button>
         </div>
         <div id="app-body">
           <div class="panel tab-content">
             <div id="edit-pane" class="tab-pane active">
+              <div class="var-count">
+                Number of propositional variables:
+                <div class="btn-group">
+                  <button class="btn" onclick="setVarCount(1)">1</button>
+                  <button class="btn active" onclick="setVarCount(2)">2</button>
+                  <button class="btn" onclick="setVarCount(3)">3</button>
+                  <button class="btn" onclick="setVarCount(4)">4</button>
+                  <button class="btn" onclick="setVarCount(5)">5</button>
+                </div>
+              </div>
               <div class="alert alert-info">
                 <div><strong>Selected state: </strong><span class="selected-node-id"></span></div>
                 <table class="propvars inactive">
                   <tbody>
-                    <tr class="var-0"><td class="var-name">p:</td><td class="var-value"></td></tr>
-                    <tr class="var-1"><td class="var-name">q:</td><td class="var-value"></td></tr>
-                    <tr class="var-2 inactive"><td class="var-name">r:</td><td class="var-value"></td></tr>
-                    <tr class="var-3 inactive"><td class="var-name">s:</td><td class="var-value"></td></tr>
-                    <tr class="var-4 inactive"><td class="var-name">t:</td><td class="var-value"></td></tr>
+                    <tr class=""><td class="var-name">p:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(0,true)">True</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(0,false)">False</button>
+                    </div></td></tr>
+                    <tr class=""><td class="var-name">q:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(1,true)">True</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(1,false)">False</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">r:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(2,true)">True</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(2,false)">False</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">s:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(3,true)">True</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(3,false)">False</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">t:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)">True</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)">False</button>
+                    </div></td></tr>
                   <tbody>
                 </table>
               </div>

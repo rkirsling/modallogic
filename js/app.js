@@ -104,8 +104,10 @@ function resetMouseVars() {
   mousedown_link = null;
 }
 
-// handle to variable table in panel
-var varTable = d3.select('#app-body .panel table.propvars');
+// handle to variable count buttons and variable table (and rows) in edit pane
+var varCountButtons = d3.selectAll('#edit-pane .var-count button'),
+    varTable = d3.select('#edit-pane table.propvars'),
+    varTableRows = varTable.selectAll('tr');
 
 // set selected node and notify panel of changes 
 function setSelectedNode(node) {
@@ -115,8 +117,12 @@ function setSelectedNode(node) {
   d3.selectAll('.selected-node-id').html(selected_node ? selected_node.id : "none");
 
   // update variable table
-  for(var i = 0; i < propvars.length; i++) {
-    varTable.select('tr.var-'+i+' .var-value').html(selected_node ? selected_node.vals[i].toString() : '');
+  if(selected_node) {
+    var vals = selected_node.vals;
+    varTableRows.each(function(d,i) {
+      d3.select(this).select('.var-value .btn-success').classed('active', vals[i]);
+      d3.select(this).select('.var-value .btn-danger').classed('active', !vals[i]);
+    });
   }
   varTable.classed('inactive', function() { return !selected_node; });
 }
@@ -138,14 +144,34 @@ function makeAssignmentString(node) {
 function setVarCount(count) {
   varCount = count;
 
+  // update variable count button states
+  varCountButtons.each(function(d,i) {
+    if(i !== varCount-1) d3.select(this).classed('active', false);
+    else d3.select(this).classed('active', true);
+  });
+
   //update graph text
   circle.selectAll('text:not(.id)').text(makeAssignmentString);
 
-  //update variable table
-  for(var i = 0; i < propvars.length; i++) {
-    if(i <= varCount) varTable.select('tr.var-'+i).classed('inactive', false);
-    else varTable.select('tr.var-'+i).classed('inactive', true);
-  }
+  //update variable table rows
+  varTableRows.each(function(d,i) {
+    if(i < varCount) d3.select(this).classed('inactive', false);
+    else d3.select(this).classed('inactive', true);
+  });
+}
+
+function setVarForSelectedNode(varnum, value) {
+  //update node in graph and state in model
+  selected_node.vals[varnum] = value;
+  model.states[selected_node.id][varnum] = value;
+
+  //update buttons
+  var row = d3.select(varTableRows[0][varnum]);
+  row.select('.var-value .btn-success').classed('active', value);
+  row.select('.var-value .btn-danger').classed('active', !value);
+
+  //update graph text
+  circle.selectAll('text:not(.id)').text(makeAssignmentString);
 }
 
 // update force layout (called automatically each iteration)
@@ -486,8 +512,8 @@ function keydown() {
 }
 
 // handles to mode select buttons and left-hand panel
-var buttonGroup = d3.select('#app .btn-group'),
-    panel       = d3.select('#app-body .panel');
+var modeButtons = d3.selectAll('#mode-select button'),
+    panes = d3.selectAll('#app-body .panel .tab-pane');
 
 function setAppMode(newMode) {
   // mode-specific settings
@@ -520,10 +546,14 @@ function setAppMode(newMode) {
   } else return;
 
   // switch button and panel states and set new mode
-  buttonGroup.selectAll('button').classed('active', false);
-  buttonGroup.select('button:nth-child(' + (newMode+1) + ')').classed('active', true);
-  panel.selectAll('.tab-pane').classed('active', false);
-  panel.select('.tab-pane:nth-child(' + (newMode+1) + ')').classed('active', true);
+  modeButtons.each(function(d,i) {
+    if(i !== newMode) d3.select(this).classed('active', false);
+    else d3.select(this).classed('active', true);
+  });
+  panes.each(function(d,i) {
+    if(i !== newMode) d3.select(this).classed('active', false);
+    else d3.select(this).classed('active', true);
+  });
   appMode = newMode;
 
   selected_link = null;
