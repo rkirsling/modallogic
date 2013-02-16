@@ -24,10 +24,6 @@ var MPL = (function() {
   // proposition regex
   var propRegEx = /^\w+$/;
 
-  // regex to check if a well-formed formula DOESN'T need outer parentheses,
-  // i.e., wff is a proposition, is parenthesized, or starts with a unary connective
-  var parenCheckRegEx = new RegExp('^' + propOrBinaryPart + '$|^' + unaryPart);
-
   /**
    * Helper function for removing all whitespace from a string.
    * @private
@@ -67,13 +63,10 @@ var MPL = (function() {
   }
 
   /**
-   * Preprocesses an MPL wff string, then converts it to its JSON representation.
+   * Removes whitespace from an MPL wff string, then converts it to its JSON representation.
    */
   function wffToJSON(wff) {
-    wff = _removeWhitespace(wff);
-    if(!parenCheckRegEx.test(wff)) wff = '(' + wff + ')';
-
-    return _wffToJSON(wff);
+    return _wffToJSON(_removeWhitespace(wff));
   }
 
   /**
@@ -104,6 +97,7 @@ var MPL = (function() {
    * Converts an MPL wff string to a LaTeX expression.
    */
   function wffToLaTeX(wff) {
+    wff = _removeWhitespace(wff);
     return wff.replace(/~/g,    '\\lnot{}')
               .replace(/\[\]/g, '\\Box{}')
               .replace(/<>/g,   '\\Diamond{}')
