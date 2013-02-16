@@ -15,7 +15,7 @@ var MPL = (function() {
       subwffPart        = unaryPart + '*' + propOrBinaryPart,
       endPart           = '\\)$';
 
-  // binary operator regexes
+  // binary connective regexes
   var conjRegEx = new RegExp(beginPart + '(' + subwffPart + ')&('   + subwffPart + ')' + endPart), // (p&q)
       disjRegEx = new RegExp(beginPart + '(' + subwffPart + ')\\|(' + subwffPart + ')' + endPart), // (p|q)
       implRegEx = new RegExp(beginPart + '(' + subwffPart + ')->('  + subwffPart + ')' + endPart), // (p->q)
@@ -24,20 +24,20 @@ var MPL = (function() {
   // proposition regex
   var propRegEx = /^\w+$/;
 
-  // regex to check if wff DOESN'T need outer parentheses;
-  // i.e., wff is prop, is parenthesized, or starts with unary operator
+  // regex to check if a well-formed formula DOESN'T need outer parentheses,
+  // i.e., wff is a proposition, is parenthesized, or starts with a unary connective
   var parenCheckRegEx = new RegExp('^' + propOrBinaryPart + '$|^' + unaryPart);
 
   /**
    * Helper function for removing all whitespace from a string.
    * @private
    */
-  function removeWhitespace(str) {
+  function _removeWhitespace(str) {
     return str.match(/\S+/g).join('');
   }
 
   /**
-   * Converts MPL wff string to JSON object.
+   * Converts an MPL wff string to its JSON representation.
    * @private
    */
   function _wffToJSON(wff) {
@@ -61,16 +61,16 @@ var MPL = (function() {
     else if(subwffs = wff.match(equiRegEx))
       json.equi = [_wffToJSON(subwffs[1]), _wffToJSON(subwffs[2])];
     else
-      throw new Error('invalid wff!');
+      throw new Error('Invalid formula!');
 
     return json;
   }
 
   /**
-   * Preprocesses MPL wff string, then converts to JSON object using previous function.
+   * Preprocesses an MPL wff string, then converts it to its JSON representation.
    */
   function wffToJSON(wff) {
-    wff = removeWhitespace(wff);
+    wff = _removeWhitespace(wff);
     if(!parenCheckRegEx.test(wff)) wff = '(' + wff + ')';
 
     return _wffToJSON(wff);
@@ -97,7 +97,7 @@ var MPL = (function() {
     else if(json.equi && json.equi.length === 2)
       return '(' + jsonToWff(json.equi[0]) + ' <-> ' + jsonToWff(json.equi[1]) + ')';
     else
-      throw new Error('invalid JSON for formula!');
+      throw new Error('Invalid JSON for formula!');
   }
 
   /**
@@ -121,10 +121,10 @@ var MPL = (function() {
   }
 
   /**
-   * Converts an (ASCII) MPL wff string to a Unicode string.
+   * Converts an (ASCII) MPL wff string to a Unicode string for displaying.
    */
   function wffToUnicode(wff) {
-    wff = removeWhitespace(wff);
+    wff = _removeWhitespace(wff);
     return wff.replace(/~/g,    '\u00ac')
               .replace(/\[\]/g, '\u25a1')
               .replace(/<>/g,   '\u22c4')
@@ -149,11 +149,11 @@ var MPL = (function() {
     // array of names of propositional variables in use
     this.propvars = propvars;
 
-    // array of states in model, where each state is represented by a truth assignment;
+    // array of states in model, where each state is represented by a truth assignment,
     // i.e., an array of booleans corresponding to propvars
     this.states = states;
 
-    // accessibility relation represented as array of arrays;
+    // accessibility relation represented as array of arrays,
     // one subarray for each state in model, which is a list of successor state indices
     this.relation = relation;
     
@@ -164,7 +164,7 @@ var MPL = (function() {
   }
 
   /**
-   * Evaluate truth of a wff at a given state within a given model.
+   * Evaluate the truth of an MPL wff (in JSON representation) at a given state within a given model.
    */
   function truth(model, state, wff) {
     if(wff.prop)
@@ -184,7 +184,7 @@ var MPL = (function() {
     else if(wff.poss)
       return model.relation[state].some(function(succState) { return truth(model, succState, wff.poss) });
     else
-      throw new Error('invalid formula!');
+      throw new Error('Invalid formula!');
   }
 
   // export public methods
