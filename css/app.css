@@ -57,8 +57,27 @@ table.propvars {
 }
 
 td.var-name {
-  font-weight: bold;
   padding: 0 6px;
+}
+
+.eval-input {
+  margin-bottom: 10px;
+}
+
+.eval-input input {
+  width: 266px;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12px;
+}
+
+.eval-output {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.eval-output .symbol {
+  width: 20px;
+  font-weight: bold;
 }
 
 div.instructions {
@@ -138,7 +157,7 @@ text {
 text.shadow {
   stroke: #FFF;
   stroke-width: 3px;
-  stroke-opacity: 0.8;
+  stroke-opacity: 0.9;
 }
 
 text.id {

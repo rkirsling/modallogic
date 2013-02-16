@@ -3,12 +3,6 @@
  * D3 directed graph code based largely on the tutorials at https://github.com/mbostock/d3/wiki/Gallery
  */
 
-/*
-// temp example of eval
-var testWff = MPL.wffToJSON('[](<>p | ~<>q)'),
-    truthVal = MPL.truth(model, curState, testWff);
-*/
-
 // app mode constants
 var MODE = {
       EDIT: 0,
@@ -104,17 +98,73 @@ function resetMouseVars() {
   mousedown_link = null;
 }
 
-// handle to variable count buttons and variable table (and rows) in edit pane
+// handles for dynamic content in panel
 var varCountButtons = d3.selectAll('#edit-pane .var-count button'),
     varTable = d3.select('#edit-pane table.propvars'),
-    varTableRows = varTable.selectAll('tr');
+    varTableRows = varTable.selectAll('tr'),
+    selectedNodeLabel = d3.select('#edit-pane .selected-node-id'),
+    evalInput = d3.select('#eval-pane .eval-input'),
+    evalOutput = d3.select('#eval-pane .eval-output');
+
+function evaluateFormula() {
+  // make sure a formula has been input
+  var formula = evalInput.select('input').node().value;
+  if(!formula) {
+    evalOutput.html('No formula!')
+      .classed('alert-success', false)
+      .classed('alert-error', false)
+      .style('display','block');
+    return;
+  }
+
+  // check formula for bad vars
+  var varsInUse = model.propvars.slice(0, varCount);
+  var badVars = formula.match(/\w+/g).filter(function(v) {
+    return varsInUse.indexOf(v) === -1;
+  });
+  if(badVars.length) {
+    evalOutput.html('Invalid variables in formula!')
+      .classed('alert-success', false)
+      .classed('alert-error', false)
+      .style('display','block');
+    return;
+  }
+
+  // evaluate formula and catch bad input
+  var curState = selected_node.id,
+      truthVal;
+  try {
+    var jsonFormula = MPL.wffToJSON(formula);
+    truthVal = MPL.truth(model, curState, jsonFormula);
+  } catch(e) {
+    evalOutput.html(e.message)
+      .classed('alert-success', false)
+      .classed('alert-error', false)
+      .style('display','block');
+    return;
+  }
+
+  // display truth evaluation (check or X mark plus LaTeXified formula)
+  var symbol = '<span class="symbol">' + (truthVal ? '\u2713' : '\u2717') + '</span>';
+  var latexOutput = '$s_' + curState + (!truthVal ? '\\not' : '') + '\\models{}' + MPL.wffToLaTeX(formula) + '$'; 
+  evalOutput.html(symbol + latexOutput)
+    .classed('alert-success', truthVal)
+    .classed('alert-error', !truthVal)
+    .style('display','block');
+
+  // re-render LaTeX
+  MathJax.Hub.Queue(['Typeset', MathJax.Hub, evalOutput.node()]);
+}
 
 // set selected node and notify panel of changes 
 function setSelectedNode(node) {
   selected_node = node;
 
-  // update selected node display
-  d3.selectAll('.selected-node-id').html(selected_node ? selected_node.id : "none");
+  // update selected node displays
+  selectedNodeLabel.html(selected_node ? '<strong>State '+selected_node.id+'</strong>' : 'No state selected');
+  evalInput.select('button')
+    .html('Evaluate' + (selected_node ? ' at <strong>State '+selected_node.id+'</strong>' : ''))
+    .attr('disabled', selected_node ? null : true);
 
   // update variable table
   if(selected_node) {
@@ -124,7 +174,7 @@ function setSelectedNode(node) {
       d3.select(this).select('.var-value .btn-danger').classed('active', !vals[i]);
     });
   }
-  varTable.classed('inactive', function() { return !selected_node; });
+  varTable.classed('inactive', !selected_node);
 }
 
 // get truth assignment for node as a displayable string
@@ -134,7 +184,7 @@ function makeAssignmentString(node) {
   
   for(var i = 0; i < varCount; i++) {
     // attach 'not' symbol to false values
-    outputVars.push((vals[i] ? '' : '\u00ac') + propvars[i]);
+    outputVars.push((vals[i] ? '' : '\u00ac') + model.propvars[i]);
   }
 
   return outputVars.join(', ');
@@ -361,7 +411,7 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      vals = propvars.map(function() { return false; }),
+      vals = model.propvars.map(function() { return false; }),
       node = {id: ++lastNodeId, vals: vals, reflexive: false};
   node.x = point[0];
   node.y = point[1];
@@ -543,6 +593,9 @@ function setAppMode(newMode) {
     drag_line
       .attr('marker-end', '')
       .classed('hidden', true);
+
+    evalInput.select('input').node().value = '';
+    evalOutput.style('display','none');
   } else return;
 
   // switch button and panel states and set new mode

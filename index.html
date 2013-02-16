@@ -34,7 +34,7 @@
                 </div>
               </div>
               <div class="alert alert-info">
-                <div><strong>Selected state: </strong><span class="selected-node-id"></span></div>
+                <div class="selected-node-id"></div>
                 <table class="propvars inactive">
                   <tbody>
                     <tr class=""><td class="var-name">p:</td><td class="var-value"><div class="btn-group">
@@ -83,8 +83,12 @@
               </div>
             </div>
             <div id="eval-pane" class="tab-pane">
-              <div class="alert alert-info">
-                <strong>Selected state: </strong><span class="selected-node-id"></span>
+              <div class="eval-input">
+                Enter a formula and select a state:
+                <input type="text" placeholder="e.g., (p -> []p)">
+                <button class="btn btn-block" onclick="evaluateFormula()" disabled>Evaluate</button>
+              </div>
+              <div class="eval-output alert">
               </div>
               <div class="instructions">
                 <ul class="unstyled">
