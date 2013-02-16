@@ -8,6 +8,12 @@ body {
   margin: 0 auto;
 }
 
+img.github-link {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 h1 {
   font-size: 32px;
   line-height: 48px;
