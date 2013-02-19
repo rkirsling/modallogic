@@ -14,10 +14,10 @@ var MODE = {
 var propvars = ['p','q','r','s','t'],
     states   = [
       [false, false, false, false, false],
-      [false, true,  false, true,  false],
-      [true,  false, true,  false, true ]
+      [true,  false, false, false, false],
+      [false, true,  false, false, false]
     ],
-    relation = [ [1,2], [0,1,2], [] ],
+    relation = [ [1], [1,2], [] ],
     model    = new MPL.Model(propvars, states, relation),
     varCount = 2;
 
@@ -34,14 +34,13 @@ var svg = d3.select('#app-body .graph')
 // set up initial nodes and links (matches MPL model)
 var nodes = [
       {id: 0, vals: [false, false, false, false, false], reflexive: false},
-      {id: 1, vals: [false, true,  false, true,  false], reflexive: true },
-      {id: 2, vals: [true,  false, true,  false, true ], reflexive: false}
+      {id: 1, vals: [true,  false, false, false, false], reflexive: true },
+      {id: 2, vals: [false, true,  false, false, false], reflexive: false}
     ],
     lastNodeId = 2,
     links = [
-      {source: nodes[0], target: nodes[1], left: true,  right: true },
-      {source: nodes[0], target: nodes[2], left: false, right: true },
-      {source: nodes[1], target: nodes[2], left: false, right: true}
+      {source: nodes[0], target: nodes[1], left: false, right: true },
+      {source: nodes[1], target: nodes[2], left: false, right: true }
     ];
 
 // init D3 force layout
@@ -146,7 +145,7 @@ function evaluateFormula() {
 
   // display truth evaluation (check or X mark plus LaTeXified formula)
   var symbol = '<span class="symbol">' + (truthVal ? '\u2713' : '\u2717') + '</span>';
-  var latexOutput = '$s_' + curState + (!truthVal ? '\\not' : '') + '\\models{}' + MPL.wffToLaTeX(formula) + '$'; 
+  var latexOutput = '$w_{' + curState + '}' + (!truthVal ? '\\not' : '') + '\\models{}' + MPL.wffToLaTeX(formula) + '$'; 
   evalOutput.html(symbol + latexOutput)
     .classed('alert-success', truthVal)
     .classed('alert-error', !truthVal)
