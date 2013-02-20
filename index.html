@@ -116,6 +116,188 @@
           <div class="graph"></div>
         </div>
       </section>
+      <section id="whatis">
+        <h2>So what's modal logic, anyway?</h2>
+        <p>
+          <strong>Modal logic</strong> is a type of symbolic logic for capturing inferences about <strong>necessity</strong> and <strong>possibility</strong>.
+          As with other logical systems, the theory lies at the intersection of mathematics and philosophy, while important applications are found within computer science and linguistics.
+        </p>
+        <p>
+          This app is a graphical semantic calculator for a specific kind of modal logic, <strong>modal propositional logic</strong>, which extends propositional logic but lacks quantifiers (<abbr title="'for all', universal quantifier">&forall;</abbr> and <abbr title="'there exists', existential quantifier">&exist;</abbr>).
+          Let's take a whirlwind tour.
+        </p>
+        <h3>From propositional logic...</h3>
+        <p>
+          To start out, let's briefly recall the language and semantics of propositional logic, i.e., connectives and truth tables.<sup><abbr title="To keep things simple, we won't worry about syntactic matters like axiomatization and deduction here.">[1]</abbr></sup>
+          <br>The usual connectives are the following:
+        </p>
+        <table class="table table-striped connective-table">
+          <thead>
+            <tr><th>Symbol</th><th>Read as</th><th>Operation</th><th>Natural language example<sup><abbr title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>$\lnot$</td><td>'not'</td><td>negation</td><td>It is <strong>not</strong> raining.</td></tr>
+            <tr><td>$\land$</td><td>'and'</td><td>conjunction</td><td>It is snowing <strong>and</strong> it is cold.</td></tr>
+            <tr><td>$\lor$</td><td>'or'</td><td>disjunction</td><td>It is raining <strong>or</strong> it is cold.</td></tr>
+            <tr><td>$\rightarrow$</td><td>'if...(then)'</td><td>implication</td><td><strong>If</strong> it is snowing, (<strong>then</strong>) it is cold.</td></tr>
+            <tr><td>$\leftrightarrow$</td><td>'iff'</td><td>equivalence<br>(bi-implication)</td><td>3 &times; 2 = 6 <strong>if and only if</strong> 3 + 3 = 6.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          A typical (long-form) truth table would look something like this (using 0 for false and 1 for true):
+        </p>
+        <table class="table table-striped truth-table">
+          <thead>
+            <tr><th>$p$</th><th>$q$</th><th>$(q\rightarrow{}p)$</th><th>$(p\rightarrow{}(q\rightarrow{}p))$</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>0</td><td>1</td><td>0</td><td>1</td></tr>
+            <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+          </tbody>
+        </table>
+        <p>
+          So once we've fixed a truth value for each of the propositional variables, the truth value of any formula using those variables is deterministic.
+        </p>
+        <h3>...to modal propositional logic</h3>
+        <p>
+          Now, in modal propositional logic, we add two new connectives to our familiar language:
+        </p>
+        <table class="table table-striped connective-table">
+          <thead>
+            <tr><th>Symbol</th><th>Read as</th><th>Operation</th><th>Natural language example<sup><abbr title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup></th></tr>
+          </thead>
+          <tbody>
+            <tr><td>$\Box$</td><td>'box'</td><td>necessity</td><td>It <strong>must</strong> be cold outside.</td></tr>
+            <tr><td>$\Diamond$</td><td>'diamond'</td><td>possibility</td><td>It <strong>might</strong> be snowing.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Semantically, these modal connectives are interpreted as operations over <strong>possible worlds</strong>.
+          We can conceive of possible worlds in various ways, depending on what we're interested in modelling:
+        </p>
+        <div class="well">
+          <ul>
+            <li>hypothetical 'alternate universes' that differ subtly or not-so-subtly from our own at the present moment</li>
+            <li>states of a computer, a computer program, or another system which evolves over time</li>
+          </ul>
+        </div>
+        <p>
+          Regardless, if we have a proposition $p$ and current world $w$, $\Box{}p$ holds ($p$ is <strong>necessary</strong>) just when $p$ is true in all worlds accessible from $w$ and $\Diamond{}p$ holds ($p$ is <strong>possible</strong>) just when $p$ is true in at least one such world.
+        </p>
+        <p>
+          What does it mean for a world to be 'accessible'? The clearest example may be that of a computer: an 'accessible' state is simply a successor state, one that is reachable from the current state.
+          As such, the set of all possible worlds isn't just an unstructured mess, but is ordered by an <strong>accessibility relation</strong> that says which worlds we can get to from which others.
+        </p>
+        <div class="example">
+          <p>
+            Let's illustrate this further with an example from linguistics. Consider the English sentence below, shown with three possible readings:
+          </p>
+          <div class="well">
+            <p>'He <strong>must</strong> be at work right now.'</p>
+            <ol>
+              <li><strong>alethic</strong>: It is logically impossible that he is not at work right now.</li>
+              <li><strong>epistemic</strong>: Judging from his working habits, he is certainly at work right now.</li>
+              <li><strong>deontic</strong>: Given his office's policies, he is required to be at work right now.</li>
+            </ol>
+          </div>
+          <p>
+            If we take $p$ to stand for 'he is at work right now', all three readings are available interpretations for $\Box{}p$.
+            First, the <strong>alethic</strong> reading is based on what is logically possible.
+            This is an unusual interpretation for our example sentence (as opposed to 'what goes up <strong>must</strong> come down'), but this is the meaning of $\Box{}p$ when our accessibility relation lets us go from any world to any other (i.e., when we consider every possible world at once).
+            Next, the <strong>epistemic</strong> reading is based on what is known.
+            Here the accessible worlds are just those which are consistent with all the information that one has, such as the knowledge of the referent's working habits.
+            Finally, the <strong>deontic</strong> reading is based on what is obligated.
+            Thus the accessible worlds are the ones where the referent fulfills his duties, i.e., where he acts in accordance with office policy.
+          </p>
+        </div>
+        <p>
+          Conveniently, we can view possible world semantics as an extension of truth tables.
+          In propositional logic, we only had to fix a truth value for each propositional variable once, but in modal propositional logic, each propositional variable can take a different truth value at each possible world.
+          Furthermore, even when two worlds have the same truth assignment, formulas using $\Box$ or $\Diamond$ may have a different truth value in each due to the accessibility relation.  
+          Thus we might say that each possible world "has its own truth table".
+          A complete assignment of truth values to each variable at each world is known as a <strong>valuation</strong>.
+        </p>
+        <p>
+          Altogether, a set of possible worlds, an accessibility relation, and a valuation form a semantic model for modal logic, known as a <strong>Kripke model</strong>.
+          A Kripke model can be visualized as a directed graph, where nodes represent worlds, the set of edges represents the accessibility relation, and the valuation is indicated by annotating each node with its truth assignment. 
+        </p>
+        <div class="example">
+          <p>
+            As a culminating example, let's take a look at the following graph, which happens to be the initial model for the app:
+          </p>
+          <div class="well svg-well">
+            <svg class="static" width="350" height="50">
+              <defs>
+                <marker id="end-arrow" viewBox="0 -5 10 10" refX="6" markerWidth="3" markerHeight="3" orient="auto">
+                  <path d="M0,-5L10,0L0,5" fill="#000"></path>
+                </marker>
+              </defs>
+              <g>
+                <path class="link" marker-end="url(#end-arrow)" d="M37,30L158,30"></path>
+                <path class="link" marker-end="url(#end-arrow)" d="M187,30L308,30"></path>
+              </g>
+              <g>
+                <g transform="translate(25,30)">
+                  <circle class="node" r="12" style="fill: #1f77b4; stroke: #15537d;"></circle>
+                  <text x="0" y="4" class="id">0</text>
+                  <text x="-21" y="-20">&not;p, &not;q</text>
+                </g>
+                <g transform="translate(175,30)">
+                  <circle class="node reflexive" r="12" style="fill: #ff7f0e; stroke: #b25809;"></circle>
+                  <text x="0" y="4" class="id">1</text>
+                  <text x="-14" y="-20">p, &not;q</text>
+                </g>
+                <g transform="translate(325,30)">
+                  <circle class="node" r="12" style="fill: #2ca02c; stroke: #1e701e;"></circle>
+                  <text x="0" y="4" class="id">2</text>
+                  <text x="-17" y="-20">&not;p, q</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <p>
+            Using the computer program metaphor, imagine a scenario where $p$ stands for 'the program is running' and $q$ stands for 'the program has terminated'.
+            Then state 0 of our model represents the state where the program is about to launch (neither running nor terminated), state 1 is the running (and non-terminated) state, and state 2 is the terminated (and no longer running) state.
+            As for the accessibility relation, from the ready-to-launch state, the only option is to transition to the running state; at the running state, the program can either continue to run (the reflexive edge is indicated by a bold circle) or terminate; and the terminated state is the end of the line, so to speak.
+          </p>
+          <p>
+            We can then evaluate formulas based on this model. For instance, $\Diamond(p\land\lnot{}q)$ says 'there is a transition to a running-and-not-terminated state (i.e., to state 1)', or more naturally, that the program is able to run (or keep running).
+            This formula is true at states 0 and 1 but false at state 2, which can be expressed in the following notation (the 'double turnstile' $\models$ can be read as 'satisfies' or 'makes...true'): 
+          </p>
+          <div class="well wffs">
+            <div>$w_0\models\Diamond(p\land\lnot{}q)$</div>
+            <div>$w_1\models\Diamond(p\land\lnot{}q)$</div>
+            <div>$w_2\not\models\Diamond(p\land\lnot{}q)$</div>
+          </div>
+          <p>
+            To see this in action, try using the app to evaluate <code>&lt;&gt;(p &amp; ~q)</code> at each state! 
+          </p>
+        </div>
+        <h2>Hungry for more?</h2>
+        <p>
+          This whirlwind tour has only skimmed the surface of modal logic&mdash;if you're curious to learn more, here are a few useful resources:
+        </p>
+        <ul class="unstyled">
+          <li>
+            <a href="http://www.logicinaction.org/" target="_blank">Logic in Action</a>
+            <p class="indent">A freely-available, broad-scope introduction to symbolic logic. Chapters 5-7 deal with modal logic and some of its applications.</p>
+          </li>
+          <li>
+            <a href="http://www.aladdin.cs.cmu.edu/reu/mini_probes/papers/2005/talk_murphy05.swf" target="_blank">What is modal logic and what is it good for?</a>
+            <p class="indent">A lively Flash presentation aimed at computer scientists.</p>
+          </li>
+          <li>
+            <a href="http://en.wikipedia.org/wiki/Modal_logic" target="_blank">Modal Logic @ Wikipedia</a>
+            <p></p>
+          </li>
+          <li>
+            <a href="http://plato.stanford.edu/entries/logic-modal/" target="_blank">Modal Logic @ Stanford Encyclopedia of Philosophy</a>
+            <p></p>
+          </li>
+        </ul>
+      </section>
     </div>
   </body>
 

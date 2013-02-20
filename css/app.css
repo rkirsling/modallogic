@@ -20,6 +20,22 @@ h1 {
   font-weight: 300;
 }
 
+h2 {
+  font-size: 24px;
+  font-weight: 300;
+  margin-top: 50px;
+}
+
+h3 {
+  font-size: 20px;
+  line-height: 36px;
+  font-weight: 300;
+  margin-top: 30px;
+  border-top: 1px solid #bce8f1;
+  color: #3a87ad;
+  letter-spacing: 2px;
+}
+
 #mode-select {
   margin-bottom: 8px;
 }
@@ -61,7 +77,7 @@ table.propvars {
   margin-top: 4px;
 }
 
-td.var-name {
+table.propvars td.var-name {
   padding: 0 6px;
 }
 
@@ -87,7 +103,7 @@ td.var-name {
   display: inline-block;
 }
 
-div.instructions {
+.instructions {
   position: absolute;
   bottom: 0;
   padding-top: 20px;
@@ -95,11 +111,11 @@ div.instructions {
   border-top: 1px solid #e3e3e3;
 }
 
-div.instructions > ul {
+.instructions > ul {
   margin-bottom: 0;
 }
 
-div.instructions > ul > li:not(:last-child) {
+.instructions > ul > li:not(:last-child) {
   margin-bottom: 8px;
 }
 
@@ -172,4 +188,66 @@ text.shadow {
 text.id {
   text-anchor: middle;
   font-weight: bold;
+}
+
+.table-striped tr:last-child td:first-child {
+  border-bottom-left-radius: 4px;
+}
+
+.table-striped tr:last-child td:last-child {
+  border-bottom-right-radius: 4px;
+}
+
+.connective-table th,
+.connective-table td {
+  width: 25%;
+}
+
+.truth-table th,
+.truth-table td {
+  width: 25%;
+  text-align: center;
+}
+
+.truth-table th:nth-child(2),
+.truth-table td:nth-child(2) {
+  border-right: 1px solid #ddd;
+}
+
+.well > ul, .well > ol {
+  margin-bottom: 0;
+}
+
+.well > p {
+  margin-bottom: 8px;
+}
+
+.example {
+  padding: 0 0 0 15px;
+  margin: 30px 0;
+  border-left: 5px solid #bce8f1;
+}
+
+.svg-well {
+  margin: 0 auto 20px;
+  width: 350px;
+}
+
+svg.static {
+  background: none;
+  border-radius: none;
+}
+
+svg.static * {
+  cursor: default;
+}
+
+.wffs > div {
+  display: inline-block;
+  width: 33%;
+  text-align: center;
+}
+
+.indent {
+  margin-left: 10px;
 }
