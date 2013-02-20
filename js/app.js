@@ -112,7 +112,7 @@ function evaluateFormula() {
     evalOutput.html('No formula!')
       .classed('alert-success', false)
       .classed('alert-error', false)
-      .style('display','block');
+      .classed('inactive', false);
     return;
   }
 
@@ -125,7 +125,7 @@ function evaluateFormula() {
     evalOutput.html('Invalid variables in formula!')
       .classed('alert-success', false)
       .classed('alert-error', false)
-      .style('display','block');
+      .classed('inactive', false);
     return;
   }
 
@@ -139,7 +139,7 @@ function evaluateFormula() {
     evalOutput.html(e.message)
       .classed('alert-success', false)
       .classed('alert-error', false)
-      .style('display','block');
+      .classed('inactive', false);
     return;
   }
 
@@ -149,7 +149,7 @@ function evaluateFormula() {
   evalOutput.html(symbol + latexOutput)
     .classed('alert-success', truthVal)
     .classed('alert-error', !truthVal)
-    .style('display','block');
+    .classed('inactive', false);
 
   // re-render LaTeX
   MathJax.Hub.Queue(['Typeset', MathJax.Hub, evalOutput.node()]);
@@ -253,15 +253,15 @@ function restart() {
 
   // update existing links
   path.classed('selected', function(d) { return d === selected_link; })
-    .attr('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .attr('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+    .classed('left', function(d) { return d.left; })
+    .classed('right', function(d) { return d.right; });
 
   // add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
     .classed('selected', function(d) { return d === selected_link; })
-    .attr('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
-    .attr('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
+    .classed('left', function(d) { return d.left; })
+    .classed('right', function(d) { return d.right; })
     .on('mousedown', function(d) {
       if(appMode !== MODE.EDIT) return;
 
@@ -315,7 +315,7 @@ function restart() {
       if(appMode === MODE.EDIT) {
         // reposition drag line
         drag_line
-          .attr('marker-end', 'url(#end-arrow)')
+          .classed('right', true)
           .classed('hidden', false)
           .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
       }
@@ -327,7 +327,7 @@ function restart() {
 
       // needed?
       drag_line
-        .attr('marker-end', '')
+        .classed('right', false)
         .classed('hidden', true);
 
       // check for drag-to-self
@@ -436,7 +436,7 @@ function mouseup() {
   if (mousedown_node) {
     // hide drag line
     drag_line.classed('hidden', true)
-      .attr('marker-end', '');
+      .classed('right', false);
   }
 
   // because :active only works in WebKit?
@@ -590,11 +590,11 @@ function setAppMode(newMode) {
     circle.call(force.drag);
 
     drag_line
-      .attr('marker-end', '')
+      .classed('right', false)
       .classed('hidden', true);
 
     evalInput.select('input').node().value = '';
-    evalOutput.style('display','none');
+    evalOutput.classed('inactive', true);
   } else return;
 
   // switch button and panel states and set new mode
