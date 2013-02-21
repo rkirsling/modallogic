@@ -253,15 +253,16 @@ function restart() {
 
   // update existing links
   path.classed('selected', function(d) { return d === selected_link; })
-    .classed('left', function(d) { return d.left; })
-    .classed('right', function(d) { return d.right; });
+    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
+
 
   // add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
     .classed('selected', function(d) { return d === selected_link; })
-    .classed('left', function(d) { return d.left; })
-    .classed('right', function(d) { return d.right; })
+    .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
+    .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
       if(appMode !== MODE.EDIT) return;
 
@@ -279,7 +280,7 @@ function restart() {
 
   // circle (node) group
   // NB: the function arg is crucial here! nodes are known by id, not by index!
-  circle = circle.data(nodes, function(d){ return d.id; });
+  circle = circle.data(nodes, function(d) { return d.id; });
 
   // update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
@@ -315,7 +316,7 @@ function restart() {
       if(appMode === MODE.EDIT) {
         // reposition drag line
         drag_line
-          .classed('right', true)
+          .style('marker-end', 'url(#end-arrow)')
           .classed('hidden', false)
           .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
       }
@@ -325,10 +326,10 @@ function restart() {
     .on('mouseup', function(d) {
       if(appMode !== MODE.EDIT || !mousedown_node) return;
 
-      // needed?
+      // needed by FF
       drag_line
-        .classed('right', false)
-        .classed('hidden', true);
+        .classed('hidden', true)
+        .style('marker-end', '');
 
       // check for drag-to-self
       mouseup_node = d;
@@ -435,8 +436,9 @@ function mousemove() {
 function mouseup() {
   if (mousedown_node) {
     // hide drag line
-    drag_line.classed('hidden', true)
-      .classed('right', false);
+    drag_line
+      .classed('hidden', true)
+      .style('marker-end', '');
   }
 
   // because :active only works in WebKit?
@@ -590,8 +592,8 @@ function setAppMode(newMode) {
     circle.call(force.drag);
 
     drag_line
-      .classed('right', false)
-      .classed('hidden', true);
+      .classed('hidden', true)
+      .style('marker-end', '');
 
     evalInput.select('input').node().value = '';
     evalOutput.classed('inactive', true);

@@ -148,14 +148,6 @@ path.link {
   cursor: default;
 }
 
-path.link.left {
-  marker-start: url(#start-arrow);
-}
-
-path.link.right {
-  marker-end: url(#end-arrow);
-}
-
 svg.edit:not(.active) path.link {
   cursor: pointer;
 }
