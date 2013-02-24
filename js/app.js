@@ -80,7 +80,7 @@ var drag_line = svg.append('svg:path')
   .attr('class', 'link dragline hidden')
   .attr('d', 'M0,0L0,0');
 
-// handles to node, edge, and label element groups
+// handles to link and node element groups
 var path = svg.append('svg:g').selectAll('path'),
     circle = svg.append('svg:g').selectAll('g');
 
@@ -136,7 +136,7 @@ function evaluateFormula() {
     var jsonFormula = MPL.wffToJSON(formula);
     truthVal = MPL.truth(model, curState, jsonFormula);
   } catch(e) {
-    evalOutput.html(e.message)
+    evalOutput.html('Invalid formula!')
       .classed('alert-success', false)
       .classed('alert-error', false)
       .classed('inactive', false);
@@ -264,7 +264,7 @@ function restart() {
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; })
     .on('mousedown', function(d) {
-      if(appMode !== MODE.EDIT) return;
+      if(appMode !== MODE.EDIT || d3.event.ctrlKey) return;
 
       // select link
       mousedown_link = d;
@@ -307,6 +307,8 @@ function restart() {
       d3.select(this).attr('transform', '');
     })
     .on('mousedown', function(d) {
+      if(/*appMode !== MODE.EDIT ||*/ d3.event.ctrlKey) return;
+
       // select node
       mousedown_node = d;
       if(mousedown_node === selected_node) setSelectedNode(null);
@@ -371,7 +373,7 @@ function restart() {
       selected_link = link;
       setSelectedNode(null);
       restart();
-    })
+    });
 
   // show node IDs
   g.append('svg:text')
@@ -407,7 +409,7 @@ function mousedown() {
   // because :active only works in WebKit?
   svg.classed('active', true);
 
-  if(mousedown_node || mousedown_link) return;
+  if(d3.event.ctrlKey || mousedown_node || mousedown_link) return;
 
   // insert new node at point
   var point = d3.mouse(this),
@@ -425,7 +427,7 @@ function mousedown() {
 }
 
 function mousemove() {
-  if (!mousedown_node) return;
+  if(!mousedown_node) return;
 
   // update drag line
   drag_line.attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + d3.mouse(this)[0] + ',' + d3.mouse(this)[1]);
@@ -434,7 +436,7 @@ function mousemove() {
 }
 
 function mouseup() {
-  if (mousedown_node) {
+  if(mousedown_node) {
     // hide drag line
     drag_line
       .classed('hidden', true)
@@ -487,6 +489,12 @@ function spliceLinksForNode(node) {
 }
 
 function keydown() {
+  // ctrl
+  if(d3.event.keyCode === 17) {
+    circle.call(force.drag);
+    svg.classed('ctrl', true);
+  }
+
   if(!selected_node && !selected_link) return;
   switch(d3.event.keyCode) {
     case 46: // delete
@@ -562,6 +570,18 @@ function keydown() {
   }
 }
 
+function keyup() {
+  // ctrl
+  if(d3.event.keyCode === 17) {
+    // "uncall" force.drag
+    // see: https://groups.google.com/forum/?fromgroups=#!topic/d3-js/-HcNN1deSow
+    circle
+      .on('mousedown.drag', null)
+      .on('touchstart.drag', null);
+    svg.classed('ctrl', false);
+  }
+}
+
 // handles to mode select buttons and left-hand panel
 var modeButtons = d3.selectAll('#mode-select button'),
     panes = d3.selectAll('#app-body .panel .tab-pane');
@@ -574,28 +594,28 @@ function setAppMode(newMode) {
       .on('mousemove', mousemove)
       .on('mouseup', mouseup);
     d3.select(window)
-      .on('keydown', keydown);
-
-    // "uncall" force.drag
-    // see: https://groups.google.com/forum/?fromgroups=#!topic/d3-js/-HcNN1deSow
-    circle
-      .on('mousedown.drag', null)
-      .on('touchstart.drag', null);
+      .on('keydown', keydown)
+      .on('keyup', keyup);
   } else if(newMode === MODE.EVAL) {
     svg.classed('edit', false)
       .on('mousedown', null)
       .on('mousemove', null)
       .on('mouseup', null);
     d3.select(window)
-      .on('keydown', null);
+      .on('keydown', null)
+      .on('keyup', null);
 
-    circle.call(force.drag);
+    // in case ctrl still held
+    circle
+      .on('mousedown.drag', null)
+      .on('touchstart.drag', null);
+    svg.classed('ctrl', false);
 
+    // in case still dragging
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
 
-    evalInput.select('input').node().value = '';
     evalOutput.classed('inactive', true);
   } else return;
 
@@ -616,6 +636,12 @@ function setAppMode(newMode) {
 
   restart();
 }
+
+// allow enter key to evaluate formula
+evalInput.select('input').on('keyup', function() {
+  // enter
+  if(d3.event.keyCode === 13) evaluateFormula(this.value);
+});
 
 // app starts here
 setAppMode(MODE.EDIT);

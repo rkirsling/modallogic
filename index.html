@@ -35,7 +35,7 @@
                 </div>
               </div>
               <div class="alert alert-info">
-                <div class="selected-node-id"></div>
+                <div class="selected-node-id">No state selected</div>
                 <table class="propvars inactive">
                   <tbody>
                     <tr class=""><td class="var-name">p:</td><td class="var-value"><div class="btn-group">
@@ -58,13 +58,14 @@
                       <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)">True</button>
                       <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)">False</button>
                     </div></td></tr>
-                  <tbody>
+                  </tbody>
                 </table>
               </div>
               <div class="instructions">
                 <ul class="unstyled">
                   <li>Click in the open space to <strong>add a state</strong></li>
                   <li>Drag between states to <strong>add a transition</strong></li>
+                  <li>Ctrl-drag a state to <strong>move</strong> graph layout</li>
                   <li>Click a state or a transition to <strong>select</strong> it</li>
                   <li>
                     When a state is selected:
@@ -94,7 +95,6 @@
               <div class="instructions">
                 <ul class="unstyled">
                   <li>Click a state to <strong>select</strong> it</li>
-                  <li>Drag states to <strong>move</strong> the graph layout</li>
                   <li>
                     When entering a formula:
                     <ul>

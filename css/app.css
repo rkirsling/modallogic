@@ -74,7 +74,10 @@ div.var-count {
 }
 
 table.propvars {
-  margin-top: 4px;
+  position: relative;
+  top: -24px;
+  left: 100px;
+  margin-bottom: -28px;
 }
 
 table.propvars td.var-name {
@@ -137,7 +140,7 @@ svg {
   user-select: none;
 }
 
-svg.edit:not(.active) {
+svg.edit:not(.active):not(.ctrl) {
   cursor: crosshair;
 }
 
@@ -148,7 +151,7 @@ path.link {
   cursor: default;
 }
 
-svg.edit:not(.active) path.link {
+svg.edit:not(.active):not(.ctrl) path.link {
   cursor: pointer;
 }
 
