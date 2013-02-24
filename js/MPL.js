@@ -1,5 +1,5 @@
 /**
- * MPL: A library for parsing and evaluating modal propositional logic.
+ * MPL: A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
  *
  * @author  Ross Kirsling
  * @version 1.0.0
@@ -63,7 +63,7 @@ var MPL = (function() {
   }
 
   /**
-   * Removes whitespace from an MPL wff string, then converts it to its JSON representation.
+   * Converts a (whitespace-insensitive) MPL wff string to its JSON representation.
    */
   function wffToJSON(wff) {
     return _wffToJSON(_removeWhitespace(wff));
@@ -141,44 +141,67 @@ var MPL = (function() {
    */
   function Model(propvars, states, relation) {
     // array of names of propositional variables in use
+    // ex: ['p','q']
     this.propvars = propvars;
 
     // array of states in model, where each state is represented by a truth assignment,
     // i.e., an array of booleans corresponding to propvars
+    // ex: [[true, true], [true, false]]
     this.states = states;
 
     // accessibility relation represented as array of arrays,
     // one subarray for each state in model, which is a list of successor state indices
+    // ex: [[0,1], []]
     this.relation = relation;
     
-    // returns truth value for a given proposition at a given state in the model
+    // returns truth value for a given propositional variable at a given state # in the model
     this.valuation = function(prop, state) {
-      return this.states[state][this.propvars.indexOf(prop)];
+      var assignment = this.states[state];
+      if(assignment === undefined) throw new Error('State not found!');
+
+      var value = assignment[this.propvars.indexOf(prop)];
+      if(value === undefined) throw new Error('Propositional variable not found!');
+
+      return value;
     };
   }
 
   /**
    * Evaluate the truth of an MPL wff (in JSON representation) at a given state within a given model.
+   * @private
    */
-  function truth(model, state, wff) {
-    if(wff.prop)
-      return model.valuation(wff.prop, state);
-    else if(wff.neg)
-      return !truth(model, state, wff.neg);
-    else if(wff.conj)
-      return wff.conj.every(function(subwff) { return truth(model, state, subwff); });
-    else if(wff.disj)
-      return wff.disj.some(function(subwff) { return truth(model, state, subwff); });
-    else if(wff.impl)
-      return (!truth(model, state, wff.impl[0]) || truth(model, state, wff.impl[1]));
-    else if(wff.equi)
-      return (truth(model, state, wff.equi[0]) === truth(model, state, wff.equi[1]));
-    else if(wff.nec)
-      return model.relation[state].every(function(succState) { return truth(model, succState, wff.nec) });
-    else if(wff.poss)
-      return model.relation[state].some(function(succState) { return truth(model, succState, wff.poss) });
+  function _truth(model, state, json) {
+    if(model.relation[state] === undefined) throw new Error('State not found!');
+
+    if(json.prop)
+      return model.valuation(json.prop, state);
+    else if(json.neg)
+      return !_truth(model, state, json.neg);
+    else if(json.conj)
+      return (_truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1]));
+    else if(json.disj)
+      return (_truth(model, state, json.disj[0]) || _truth(model, state, json.disj[1]));
+    else if(json.impl)
+      return (!_truth(model, state, json.impl[0]) || _truth(model, state, json.impl[1]));
+    else if(json.equi)
+      return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
+    else if(json.nec)
+      return model.relation[state].every(function(succState) { return _truth(model, succState, json.nec); });
+    else if(json.poss)
+      return model.relation[state].some(function(succState) { return _truth(model, succState, json.poss); });
     else
       throw new Error('Invalid formula!');
+  }
+
+  /**
+   * Evaluate the truth of an MPL wff (as string or JSON) at a given state within a given model.
+   */
+  function truth(model, state, wff) {
+    if(!(model instanceof MPL.Model)) throw new Error('Invalid model!');
+    
+    var json = (typeof wff === 'string') ? wffToJSON(wff) : wff;
+    
+    return _truth(model, state, json);
   }
 
   // export public methods
