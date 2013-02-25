@@ -103,15 +103,15 @@ var varCountButtons = d3.selectAll('#edit-pane .var-count button'),
     varTableRows = varTable.selectAll('tr'),
     selectedNodeLabel = d3.select('#edit-pane .selected-node-id'),
     evalInput = d3.select('#eval-pane .eval-input'),
-    evalOutput = d3.select('#eval-pane .eval-output');
+    evalOutput = d3.select('#eval-pane .eval-output'),
+    currentFormula = d3.select('#app-body .current-formula');
 
 function evaluateFormula() {
   // make sure a formula has been input
   var formula = evalInput.select('input').node().value;
   if(!formula) {
-    evalOutput.html('No formula!')
-      .classed('alert-success', false)
-      .classed('alert-error', false)
+    evalOutput
+      .html('<div class="alert">No formula!</div>')
       .classed('inactive', false);
     return;
   }
@@ -122,36 +122,54 @@ function evaluateFormula() {
     return varsInUse.indexOf(v) === -1;
   });
   if(badVars.length) {
-    evalOutput.html('Invalid variables in formula!')
-      .classed('alert-success', false)
-      .classed('alert-error', false)
+    evalOutput
+      .html('<div class="alert">Invalid variables in formula!</div>')
       .classed('inactive', false);
     return;
   }
 
-  // evaluate formula and catch bad input
-  var curState = selected_node.id,
-      truthVal;
+  // parse formula and catch bad input
+  var jsonFormula = null;
   try {
-    var jsonFormula = MPL.wffToJSON(formula);
-    truthVal = MPL.truth(model, curState, jsonFormula);
+    jsonFormula = MPL.wffToJSON(formula);
   } catch(e) {
-    evalOutput.html('Invalid formula!')
-      .classed('alert-success', false)
-      .classed('alert-error', false)
+    evalOutput
+      .html('<div class="alert">Invalid formula!</div>')
       .classed('inactive', false);
     return;
   }
 
-  // display truth evaluation (check or X mark plus LaTeXified formula)
-  var symbol = '<span class="symbol">' + (truthVal ? '\u2713' : '\u2717') + '</span>';
-  var latexOutput = '$w_{' + curState + '}' + (!truthVal ? '\\not' : '') + '\\models{}' + MPL.wffToLaTeX(formula) + '$'; 
-  evalOutput.html(symbol + latexOutput)
-    .classed('alert-success', truthVal)
-    .classed('alert-error', !truthVal)
+  // evaluate formula at each state in model
+  var trueStates  = [],
+      falseStates = [];
+  nodes.forEach(function(node, index) {
+    var id = node.id,
+        truthVal = MPL.truth(model, id, jsonFormula);
+
+    if(truthVal) trueStates.push(id);
+    else falseStates.push(id);
+    
+    d3.select(circle[0][index])
+      .classed('waiting', false)
+      .classed('true', truthVal)
+      .classed('false', !truthVal);
+  });
+
+  // display evaluated formula
+  currentFormula
+    .html('<strong>Current formula:</strong><br>$' + MPL.wffToLaTeX(formula) + '$')
+    .classed('inactive', false);
+
+  // display truth evaluation
+  var latexTrue = trueStates.length ? '$w_{' + trueStates.join('}$, $w_{') + '}$' : '$\\varnothing$';
+  var latexFalse = falseStates.length ? '$w_{' + falseStates.join('}$, $w_{') + '}$' : '$\\varnothing$';
+  evalOutput
+    .html('<div class="alert alert-success"><strong>True:</strong><div>' + latexTrue + '</div></div>' +
+          '<div class="alert alert-error"><strong>False:</strong><div>' + latexFalse + '</div></div>')
     .classed('inactive', false);
 
   // re-render LaTeX
+  MathJax.Hub.Queue(['Typeset', MathJax.Hub, currentFormula.node()]);
   MathJax.Hub.Queue(['Typeset', MathJax.Hub, evalOutput.node()]);
 }
 
@@ -159,11 +177,8 @@ function evaluateFormula() {
 function setSelectedNode(node) {
   selected_node = node;
 
-  // update selected node displays
+  // update selected node label
   selectedNodeLabel.html(selected_node ? '<strong>State '+selected_node.id+'</strong>' : 'No state selected');
-  evalInput.select('button')
-    .html('Evaluate' + (selected_node ? ' at <strong>State '+selected_node.id+'</strong>' : ''))
-    .attr('disabled', selected_node ? null : true);
 
   // update variable table
   if(selected_node) {
@@ -256,7 +271,6 @@ function restart() {
     .style('marker-start', function(d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function(d) { return d.right ? 'url(#end-arrow)' : ''; });
 
-
   // add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
@@ -276,7 +290,6 @@ function restart() {
 
   // remove old links
   path.exit().remove();
-
 
   // circle (node) group
   // NB: the function arg is crucial here! nodes are known by id, not by index!
@@ -307,7 +320,7 @@ function restart() {
       d3.select(this).attr('transform', '');
     })
     .on('mousedown', function(d) {
-      if(/*appMode !== MODE.EDIT ||*/ d3.event.ctrlKey) return;
+      if(appMode !== MODE.EDIT || d3.event.ctrlKey) return;
 
       // select node
       mousedown_node = d;
@@ -315,13 +328,11 @@ function restart() {
       else setSelectedNode(mousedown_node);
       selected_link = null;
 
-      if(appMode === MODE.EDIT) {
-        // reposition drag line
-        drag_line
-          .style('marker-end', 'url(#end-arrow)')
-          .classed('hidden', false)
-          .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-      }
+      // reposition drag line
+      drag_line
+        .style('marker-end', 'url(#end-arrow)')
+        .classed('hidden', false)
+        .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
 
       restart();
     })
@@ -398,14 +409,14 @@ function restart() {
   // remove old nodes
   circle.exit().remove();
 
-  // prevent I-bar cursor on drag
-  if(d3.event) d3.event.preventDefault();
-
   // set the graph in motion
   force.start();
 }
 
 function mousedown() {
+  // prevent I-bar on drag
+  d3.event.preventDefault();
+
   // because :active only works in WebKit?
   svg.classed('active', true);
 
@@ -488,11 +499,18 @@ function spliceLinksForNode(node) {
   });
 }
 
+// only respond once per keydown
+var lastKeyDown = -1;
+
 function keydown() {
+  if(lastKeyDown !== -1) return;
+  lastKeyDown = d3.event.keyCode;
+
   // ctrl
   if(d3.event.keyCode === 17) {
     circle.call(force.drag);
     svg.classed('ctrl', true);
+    return;
   }
 
   if(!selected_node && !selected_link) return;
@@ -571,6 +589,8 @@ function keydown() {
 }
 
 function keyup() {
+  lastKeyDown = -1;
+
   // ctrl
   if(d3.event.keyCode === 17) {
     // "uncall" force.drag
@@ -589,6 +609,7 @@ var modeButtons = d3.selectAll('#mode-select button'),
 function setAppMode(newMode) {
   // mode-specific settings
   if(newMode === MODE.EDIT) {
+    // enable listeners
     svg.classed('edit', true)
       .on('mousedown', mousedown)
       .on('mousemove', mousemove)
@@ -596,9 +617,17 @@ function setAppMode(newMode) {
     d3.select(window)
       .on('keydown', keydown)
       .on('keyup', keyup);
+
+    // remove eval classes
+    circle
+      .classed('waiting', false)
+      .classed('true', false)
+      .classed('false', false);
+    currentFormula.classed('inactive', true);
   } else if(newMode === MODE.EVAL) {
+    // disable listeners (except for I-bar prevention)
     svg.classed('edit', false)
-      .on('mousedown', null)
+      .on('mousedown', function() { d3.event.preventDefault(); })
       .on('mousemove', null)
       .on('mouseup', null);
     d3.select(window)
@@ -610,12 +639,20 @@ function setAppMode(newMode) {
       .on('mousedown.drag', null)
       .on('touchstart.drag', null);
     svg.classed('ctrl', false);
+    lastKeyDown = -1;
 
     // in case still dragging
     drag_line
       .classed('hidden', true)
       .style('marker-end', '');
 
+    // clear mouse vars
+    selected_link = null;
+    setSelectedNode(null);
+    resetMouseVars();
+
+    // reset eval state
+    circle.classed('waiting', true);
     evalOutput.classed('inactive', true);
   } else return;
 
@@ -630,18 +667,19 @@ function setAppMode(newMode) {
   });
   appMode = newMode;
 
-  selected_link = null;
-  setSelectedNode(null);
-  resetMouseVars();
-
   restart();
 }
 
 // allow enter key to evaluate formula
-evalInput.select('input').on('keyup', function() {
-  // enter
-  if(d3.event.keyCode === 13) evaluateFormula(this.value);
-});
+evalInput.select('input')
+  .on('keyup', function() {
+    // enter
+    if(d3.event.keyCode === 13) evaluateFormula();
+  })
+  .on('keydown', function() {
+    // enter -- needed on IE9
+    if(d3.event.keyCode === 13) d3.event.preventDefault();
+  });
 
 // app starts here
 setAppMode(MODE.EDIT);

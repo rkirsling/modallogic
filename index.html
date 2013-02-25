@@ -86,15 +86,14 @@
             </div>
             <div id="eval-pane" class="tab-pane">
               <div class="eval-input">
-                Enter a formula and select a state:
+                Enter a formula:
                 <input type="text" placeholder="e.g., (p -> []p)">
-                <button class="btn btn-block" onclick="evaluateFormula()" disabled>Evaluate</button>
+                <button class="btn btn-block" onclick="evaluateFormula()">Evaluate</button>
               </div>
-              <div class="eval-output alert inactive">
+              <div class="eval-output inactive">
               </div>
               <div class="instructions">
                 <ul class="unstyled">
-                  <li>Click a state to <strong>select</strong> it</li>
                   <li>
                     When entering a formula:
                     <ul>
@@ -105,7 +104,6 @@
                       <li>use <code>(A | B)</code> for $(A\lor{}B)$</li>
                       <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
                       <li>use <code>(A &lt;-&gt; B)</code> for $(A\leftrightarrow{}B)$</li>
-
                     </ul>
                   </li>
                   <li><strong>NB:</strong> Input is parenthesis-sensitive!
@@ -114,6 +112,7 @@
             </div>
           </div>
           <div class="graph"></div>
+          <div class="current-formula inactive"></div>
         </div>
       </section>
       <section id="whatis">
