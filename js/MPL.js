@@ -139,30 +139,102 @@ var MPL = (function() {
    * Constructor for Kripke model.
    * @constructor
    */
-  function Model(propvars, states, relation) {
-    // array of names of propositional variables in use
-    // ex: ['p','q']
-    this.propvars = propvars;
+  function Model() {
+    // Array of states (worlds) in model.
+    // Each state is an object with two properties:
+    // - assignment: a truth assignment (where specifying false values is optional)
+    // - successors: an array of successor state indices (in lieu of a separate accessibility relation)
+    // ex: [{assignment: {'p': true},             successors: [0,1]},
+    //      {assignment: {'p': false, 'q': true}, successors: []   }]
+    var _states = [];
 
-    // array of states in model, where each state is represented by a truth assignment,
-    // i.e., an array of booleans corresponding to propvars
-    // ex: [[true, true], [true, false]]
-    this.states = states;
+    /**
+     * Adds a transition to the model, given two state indices.
+     */
+    this.addTransition = function(source, target) {
+      if(!_states[source] || !_states[target]) return;
 
-    // accessibility relation represented as array of arrays,
-    // one subarray for each state in model, which is a list of successor state indices
-    // ex: [[0,1], []]
-    this.relation = relation;
+      _states[source].successors.push(target);
+    };
+
+    /**
+     * Removes a transition from the model, given two state indices.
+     */
+    this.removeTransition = function(source, target) {
+      if(!_states[source]) return;
+
+      var successors = _states[source].successors,
+          index = successors.indexOf(target);
+      if(index !== -1) successors.splice(index, 1);
+    };
+
+    /**
+     * Retuns an array of successor states for a given state index.
+     */
+    this.getSuccessorsOf = function(source) {
+      if(!_states[source]) return undefined;
+
+      return _states[source].successors; 
+    };
+
+    /**
+     * Adds a state with a given assignment to the model. Returns the new state index.
+     */
+    this.addState = function(assignment) {
+      var processedAssignment = {};
+      for(var propvar in assignment)
+        if(typeof assignment[propvar] === 'boolean')
+          processedAssignment[propvar] = assignment[propvar];
+
+      _states.push({assignment: processedAssignment, successors: []});
+      return _states.length-1;
+    };
+
+    /**
+     * Edits the assignment of a state in the model, given a state index and a new (partial) assignment.
+     */
+    this.editState = function(state, assignment) {
+      if(!_states[state]) return;
+
+      var stateAssignment = _states[state].assignment;
+      for(var propvar in assignment)
+        if(typeof assignment[propvar] === 'boolean')
+          stateAssignment[propvar] = assignment[propvar];
+    };
+
+    /**
+     * Removes a state (and all related transitions) from the model, given a state index.
+     */
+    this.removeState = function(state) {
+      if(!_states[state]) return;
+      var self = this;
+
+      _states[state] = null;
+      _states.forEach(function(source) {
+        if(source) self.removeTransition(source, state);
+      });
+    };
+
+    /**
+     * Returns an array containing the assignment (or null) of each state in the model.
+     */
+    this.getStates = function() {
+      var stateList = [];
+      _states.forEach(function(state, index) {
+        if(state) stateList.push(state.assignment);
+        else stateList.push(null);
+      });
+
+      return stateList;
+    };
     
-    // returns truth value for a given propositional variable at a given state # in the model
-    this.valuation = function(prop, state) {
-      var assignment = this.states[state];
-      if(assignment === undefined) throw new Error('State not found!');
+    /**
+     * Returns the truth value of a given propositional variable at a given state index.
+     */
+    this.valuation = function(propvar, state) {
+      if(!_states[state]) throw new Error('State ' + state + ' not found!');
 
-      var value = assignment[this.propvars.indexOf(prop)];
-      if(value === undefined) throw new Error('Propositional variable not found!');
-
-      return value;
+      return _states[state].assignment[propvar];
     };
   }
 
@@ -171,8 +243,6 @@ var MPL = (function() {
    * @private
    */
   function _truth(model, state, json) {
-    if(model.relation[state] === undefined) throw new Error('State not found!');
-
     if(json.prop)
       return model.valuation(json.prop, state);
     else if(json.neg)
@@ -186,9 +256,9 @@ var MPL = (function() {
     else if(json.equi)
       return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
     else if(json.nec)
-      return model.relation[state].every(function(succState) { return _truth(model, succState, json.nec); });
+      return model.getSuccessorsOf(state).every(function(succState) { return _truth(model, succState, json.nec); });
     else if(json.poss)
-      return model.relation[state].some(function(succState) { return _truth(model, succState, json.poss); });
+      return model.getSuccessorsOf(state).some(function(succState) { return _truth(model, succState, json.poss); });
     else
       throw new Error('Invalid formula!');
   }
@@ -198,6 +268,7 @@ var MPL = (function() {
    */
   function truth(model, state, wff) {
     if(!(model instanceof MPL.Model)) throw new Error('Invalid model!');
+    if(!model.getStates()[state]) throw new Error('State ' + state + ' not found!');
     
     var json = (typeof wff === 'string') ? wffToJSON(wff) : wff;
     
