@@ -1,5 +1,6 @@
 /**
  * Modal Logic Playground -- application code
+ * 
  * D3 directed graph code based largely on the tutorials at https://github.com/mbostock/d3/wiki/Gallery
  */
 
@@ -10,16 +11,21 @@ var MODE = {
     },
     appMode = MODE.EDIT;
 
-// initial MPL model
+// set up initial MPL model
 var propvars = ['p','q','r','s','t'],
-    states   = [
-      [false, false, false, false, false],
-      [true,  false, false, false, false],
-      [false, true,  false, false, false]
-    ],
-    relation = [ [1], [1,2], [] ],
-    model    = new MPL.Model(propvars, states, relation),
-    varCount = 2;
+    varCount = 2,
+    states   = [ {}, {'p': true}, {'q': true} ],
+    relation = [ [1], [1,2], [] ];
+
+var model = new MPL.Model();
+states.forEach(function(s) {
+  model.addState(s);
+});
+relation.forEach(function(successors, source) {
+  successors.forEach(function(target) {
+    model.addTransition(source, target);
+  });
+});
 
 // set up SVG for D3
 var width  = 640,
@@ -117,7 +123,7 @@ function evaluateFormula() {
   }
 
   // check formula for bad vars
-  var varsInUse = model.propvars.slice(0, varCount);
+  var varsInUse = propvars.slice(0, varCount);
   var badVars = formula.match(/\w+/g).filter(function(v) {
     return varsInUse.indexOf(v) === -1;
   });
@@ -198,7 +204,7 @@ function makeAssignmentString(node) {
   
   for(var i = 0; i < varCount; i++) {
     // attach 'not' symbol to false values
-    outputVars.push((vals[i] ? '' : '\u00ac') + model.propvars[i]);
+    outputVars.push((vals[i] ? '' : '\u00ac') + propvars[i]);
   }
 
   return outputVars.join(', ');
@@ -227,7 +233,9 @@ function setVarCount(count) {
 function setVarForSelectedNode(varnum, value) {
   //update node in graph and state in model
   selected_node.vals[varnum] = value;
-  model.states[selected_node.id][varnum] = value;
+  var options = {};
+  options[propvars[varnum]] = value;
+  model.editState(selected_node.id, options);
 
   //update buttons
   var row = d3.select(varTableRows[0][varnum]);
@@ -352,7 +360,7 @@ function restart() {
       d3.select(this).attr('transform', '');
 
       // add transition to model
-      model.relation[mousedown_node.id].push(mouseup_node.id);
+      model.addTransition(mousedown_node.id, mouseup_node.id);
 
       // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
@@ -424,15 +432,14 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      vals = model.propvars.map(function() { return false; }),
+      vals = propvars.map(function() { return false; }),
       node = {id: ++lastNodeId, vals: vals, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
 
   // add state to model
-  model.states.push(vals);
-  model.relation.push([]);
+  model.addState();
 
   restart();
 }
@@ -461,32 +468,15 @@ function mouseup() {
   resetMouseVars();
 }
 
-function pushTransitionToModel(sourceId, targetId) {
-  model.relation[sourceId].push(targetId);
-}
-
-function spliceTransitionFromModel(sourceId, targetId) {
-  var successors = model.relation[sourceId];
-  successors.splice(successors.indexOf(targetId), 1);
-}
-
 function removeLinkFromModel(link) {
   var sourceId = link.source.id,
       targetId = link.target.id;
 
   // remove leftward transition
-  if(link.left) spliceTransitionFromModel(targetId, sourceId);
+  if(link.left) model.removeTransition(targetId, sourceId);
 
   // remove rightward transition
-  if(link.right) spliceTransitionFromModel(sourceId, targetId);
-}
-
-function removeNodeFromModel(node) {
-  var id = node.id;
-
-  // remove state and outgoing transitions
-  model.states[id] = [];
-  model.relation[id] = [];
+  if(link.right) model.removeTransition(sourceId, targetId);
 }
 
 function spliceLinksForNode(node) {
@@ -494,7 +484,6 @@ function spliceLinksForNode(node) {
     return (l.source === node || l.target === node);
   });
   toSplice.map(function(l) {
-    removeLinkFromModel(l);
     links.splice(links.indexOf(l), 1);
   });
 }
@@ -517,7 +506,7 @@ function keydown() {
   switch(d3.event.keyCode) {
     case 46: // delete
       if(selected_node) {
-        removeNodeFromModel(selected_node);
+        model.removeState(selected_node.id);
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
       } else if(selected_link) {
@@ -535,11 +524,11 @@ function keydown() {
         // set link direction to both left and right
         if(!selected_link.left) {
           selected_link.left = true;
-          pushTransitionToModel(targetId, sourceId);
+          model.addTransition(targetId, sourceId);
         }
         if(!selected_link.right) {
           selected_link.right = true;
-          pushTransitionToModel(sourceId, targetId);
+          model.addTransition(sourceId, targetId);
         }
       }
       restart();
@@ -551,11 +540,11 @@ function keydown() {
         // set link direction to left only
         if(!selected_link.left) {
           selected_link.left = true;
-          pushTransitionToModel(targetId, sourceId);
+          model.addTransition(targetId, sourceId);
         }
         if(selected_link.right) {
           selected_link.right = false;
-          spliceTransitionFromModel(sourceId, targetId);
+          model.removeTransition(sourceId, targetId);
         }
       }
       restart();
@@ -565,10 +554,10 @@ function keydown() {
         // toggle node reflexivity
         if(selected_node.reflexive) {
           selected_node.reflexive = false;
-          spliceTransitionFromModel(selected_node.id, selected_node.id);
+          model.removeTransition(selected_node.id, selected_node.id);
         } else {
           selected_node.reflexive = true;
-          pushTransitionToModel(selected_node.id, selected_node.id);
+          model.addTransition(selected_node.id, selected_node.id);
         }
       } else if(selected_link) {
         var sourceId = selected_link.source.id,
@@ -576,11 +565,11 @@ function keydown() {
         // set link direction to right only
         if(selected_link.left) {
           selected_link.left = false;
-          spliceTransitionFromModel(targetId, sourceId);
+          model.removeTransition(targetId, sourceId);
         }
         if(!selected_link.right) {
           selected_link.right = true;
-          pushTransitionToModel(sourceId, targetId);
+          model.addTransition(sourceId, targetId);
         }
       }
       restart();
