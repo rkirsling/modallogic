@@ -11,19 +11,61 @@ var MODE = {
     },
     appMode = MODE.EDIT;
 
-// set up initial MPL model
+// set up initial MPL model (loads saved model if available, default otherwise)
 var propvars = ['p','q','r','s','t'],
-    varCount = 2,
-    states   = [ {}, {'p': true}, {'q': true} ],
-    relation = [ [1], [1,2], [] ];
+    varCount = 2;
 
-var model = new MPL.Model();
-states.forEach(function(s) {
-  model.addState(s);
+var model = new MPL.Model(),
+    modelString = 'AS1;ApS1,2;AqS;';
+
+var modelParam = window.location.search.match(/\?model=(.*)/);
+if(modelParam) modelString = modelParam[1];
+
+model.importFromString(modelString);
+
+// set up initial nodes and links (edges) of graph, based on MPL model
+var lastNodeId = -1,
+    nodes = [],
+    links = [];
+
+// --> nodes setup
+var states = model.getStates();
+states.forEach(function(state) {
+  if(!state) { lastNodeId++; return; }
+
+  var defaultVals = propvars.map(function() { return false; }),
+      node = {id: ++lastNodeId, vals: defaultVals, reflexive: false};
+
+  for(var propvar in state) {
+    var index = propvars.indexOf(propvar);
+    if(index !== -1) node.vals[index] = true;
+  }
+
+  nodes.push(node);
 });
-relation.forEach(function(successors, source) {
-  successors.forEach(function(target) {
-    model.addTransition(source, target);
+
+// --> links setup
+nodes.forEach(function(source) {
+  var sourceId = source.id,
+      successors = model.getSuccessorsOf(sourceId);
+
+  successors.forEach(function(targetId) {
+    if(sourceId === targetId) {
+      source.reflexive = true;
+      return;
+    }
+
+    var target = nodes.filter(function(node) { return node.id === targetId; })[0];
+
+    if(sourceId < targetId) {
+      links.push({source: source, target: target, left: false, right: true });
+      return;
+    }
+
+    var link = links.filter(function(l) { return (l.source === target && l.target === source); })[0];
+
+    if(link) link.left = true;
+    else links.push({source: target, target: source, left: true, right: false });
   });
 });
 
@@ -36,18 +78,6 @@ var svg = d3.select('#app-body .graph')
   .append('svg')
   .attr('width', width)
   .attr('height', height);
-
-// set up initial nodes and links (matches MPL model)
-var nodes = [
-      {id: 0, vals: [false, false, false, false, false], reflexive: false},
-      {id: 1, vals: [true,  false, false, false, false], reflexive: true },
-      {id: 2, vals: [false, true,  false, false, false], reflexive: false}
-    ],
-    lastNodeId = 2,
-    links = [
-      {source: nodes[0], target: nodes[1], left: false, right: true },
-      {source: nodes[1], target: nodes[2], left: false, right: true }
-    ];
 
 // init D3 force layout
 var force = d3.layout.force()
@@ -375,8 +405,7 @@ function restart() {
         direction = 'left';
       }
 
-      var link;
-      link = links.filter(function(l) {
+      var link = links.filter(function(l) {
         return (l.source === source && l.target === target);
       })[0];
 
@@ -432,8 +461,8 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      vals = propvars.map(function() { return false; }),
-      node = {id: ++lastNodeId, vals: vals, reflexive: false};
+      defaultVals = propvars.map(function() { return false; }),
+      node = {id: ++lastNodeId, vals: defaultVals, reflexive: false};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
