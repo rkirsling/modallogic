@@ -236,6 +236,72 @@ var MPL = (function() {
 
       return _states[state].assignment[propvar];
     };
+
+    /**
+     * Returns current model as a compact string suitable for use as a URL parameter.
+     * ex. [{assignment: {'p':false, 'q':true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
+     *     compresses to 'AqS0,2;;AS;'
+     */
+    this.exportToString = function() {
+      var output = '';
+
+      _states.forEach(function(state) {
+        if(state) {
+          output += 'A';
+          var trueVars = [];
+          for(var propvar in state.assignment)
+            if(state.assignment[propvar])
+              trueVars.push(propvar);
+          if(trueVars.length) output += trueVars.join();
+
+          output += 'S';
+          if(state.successors) output += state.successors.join();
+        }
+        output += ';';
+      });
+
+      return output;
+    };
+
+    /**
+     * Restores a model from an export string.
+     */
+    this.importFromString = function(input) {
+      var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
+      if(!regex.test(input)) return;
+      
+      _states = [];
+
+      var self = this,
+          successorLists = [];
+
+      var inputStates = input.split(';').slice(0, -1);
+      inputStates.forEach(function(state) {
+        if(!state) {
+          _states.push(null);
+          successorLists.push(null);
+          return;
+        }
+
+        var stateProperties = state.match(/A(.*)S(.*)/).slice(1,3)
+                                   .map(function(substr) { return (substr ? substr.split(',') : []); });
+
+        var assignment = {};
+        stateProperties[0].forEach(function(propvar) { assignment[propvar] = true; });
+        _states.push({assignment: assignment, successors: []});
+
+        var successors = stateProperties[1].map(function(succState) { return +succState; });
+        successorLists.push(successors);
+      });
+
+      successorLists.forEach(function(successors, source) {
+        if(!successors) return;
+
+        successors.forEach(function(target) {
+          self.addTransition(source, target);
+        });
+      });
+    }
   }
 
   /**
