@@ -142,10 +142,10 @@ var MPL = (function() {
   function Model() {
     // Array of states (worlds) in model.
     // Each state is an object with two properties:
-    // - assignment: a truth assignment (where specifying false values is optional)
+    // - assignment: a truth assignment (in which only true values are actually stored)
     // - successors: an array of successor state indices (in lieu of a separate accessibility relation)
-    // ex: [{assignment: {'p': true},             successors: [0,1]},
-    //      {assignment: {'p': false, 'q': true}, successors: []   }]
+    // ex: [{assignment: {},          successors: [0,1]},
+    //      {assignment: {'p': true}, successors: []   }]
     var _states = [];
 
     /**
@@ -169,7 +169,7 @@ var MPL = (function() {
     };
 
     /**
-     * Retuns an array of successor states for a given state index.
+     * Returns an array of successor states for a given state index.
      */
     this.getSuccessorsOf = function(source) {
       if(!_states[source]) return undefined;
@@ -178,16 +178,15 @@ var MPL = (function() {
     };
 
     /**
-     * Adds a state with a given assignment to the model. Returns the new state index.
+     * Adds a state with a given assignment to the model.
      */
     this.addState = function(assignment) {
       var processedAssignment = {};
       for(var propvar in assignment)
-        if(typeof assignment[propvar] === 'boolean')
+        if(assignment[propvar] === true)
           processedAssignment[propvar] = assignment[propvar];
 
       _states.push({assignment: processedAssignment, successors: []});
-      return _states.length-1;
     };
 
     /**
@@ -198,8 +197,8 @@ var MPL = (function() {
 
       var stateAssignment = _states[state].assignment;
       for(var propvar in assignment)
-        if(typeof assignment[propvar] === 'boolean')
-          stateAssignment[propvar] = assignment[propvar];
+        if(assignment[propvar] === true) stateAssignment[propvar] = true;
+        else if(assignment[propvar] === false) delete stateAssignment[propvar];
     };
 
     /**
@@ -234,12 +233,12 @@ var MPL = (function() {
     this.valuation = function(propvar, state) {
       if(!_states[state]) throw new Error('State ' + state + ' not found!');
 
-      return _states[state].assignment[propvar];
+      return !!_states[state].assignment[propvar];
     };
 
     /**
      * Returns current model as a compact string suitable for use as a URL parameter.
-     * ex. [{assignment: {'p':false, 'q':true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
+     * ex: [{assignment: {'p':false, 'q':true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
      *     compresses to 'AqS0,2;;AS;'
      */
     this.exportToString = function() {
@@ -247,15 +246,8 @@ var MPL = (function() {
 
       _states.forEach(function(state) {
         if(state) {
-          output += 'A';
-          var trueVars = [];
-          for(var propvar in state.assignment)
-            if(state.assignment[propvar])
-              trueVars.push(propvar);
-          if(trueVars.length) output += trueVars.join();
-
-          output += 'S';
-          if(state.successors) output += state.successors.join();
+          output += 'A' + Object.keys(state.assignment).join();
+          output += 'S' + state.successors.join();
         }
         output += ';';
       });
