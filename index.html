@@ -139,7 +139,7 @@
             <tr><td>$\land$</td><td>'and'</td><td>conjunction</td><td>It is snowing <strong>and</strong> it is cold.</td></tr>
             <tr><td>$\lor$</td><td>'or'</td><td>disjunction</td><td>It is raining <strong>or</strong> it is cold.</td></tr>
             <tr><td>$\rightarrow$</td><td>'if...(then)'</td><td>implication</td><td><strong>If</strong> it is snowing, (<strong>then</strong>) it is cold.</td></tr>
-            <tr><td>$\leftrightarrow$</td><td>'iff'</td><td>equivalence<br>(bi-implication)</td><td>3 &times; 2 = 6 <strong>if and only if</strong> 3 + 3 = 6.</td></tr>
+            <tr><td>$\leftrightarrow$</td><td>'iff'</td><td>equivalence</td><td>3 &times; 2 = 6 <strong>if and only if</strong> 3 + 3 = 6.</td></tr>
           </tbody>
         </table>
         <p>
@@ -161,7 +161,7 @@
         </p>
         <h3>...to modal propositional logic</h3>
         <p>
-          Now, in modal logic, we add two new connectives to our familiar language:
+          Now, in modal logic, we add two new unary connectives to our familiar language:
         </p>
         <table class="table table-striped connective-table">
           <thead>
@@ -169,52 +169,76 @@
           </thead>
           <tbody>
             <tr><td>$\Box$</td><td>'box'</td><td>necessity</td><td>It <strong>must</strong> be cold outside.</td></tr>
-            <tr><td>$\Diamond$</td><td>'diamond'</td><td>possibility</td><td>It <strong>might</strong> be snowing.</td></tr>
+            <tr><td>$\Diamond$</td><td>'diamond'</td><td>possibility</td><td>It <strong>may</strong> be snowing.</td></tr>
           </tbody>
         </table>
         <p>
-          Semantically, these modal connectives are interpreted as operations over <strong>possible worlds</strong>.
-          We can conceive of possible worlds in various ways, depending on what we're interested in modelling:
+          Semantically, these modal connectives are interpreted with respect to <strong>possible worlds</strong>.
+          We can conceive of possible worlds in various ways, depending on what we're interested in modelling.
+          On the one hand, possible worlds might be hypothetical 'alternate universes': there is the 'actual world', the way things really are at the present moment, as well as an infinity of other 'worlds' which differ in ways both subtle (such as a world where my pen is simply on the opposite side of my desk) and dramatic (such as a world in which dinosaurs still roam Earth in 2013 CE).
+          Alternatively, possible worlds might be the various states of a computer, a computer program, or another system which evolves over time.
+        </p>
+        <p>
+          Regardless, if we have a proposition $p$ and current world $w$:
         </p>
         <div class="well">
           <ul>
-            <li>hypothetical 'alternate universes' that differ subtly or not-so-subtly from our own at the present moment</li>
-            <li>states of a computer, a computer program, or another system which evolves over time</li>
+            <li>$\Box{}p$ holds ($p$ is <strong>necessary</strong>) just when $p$ is true in all worlds accessible from $w$</li>
+            <li>$\Diamond{}p$ holds ($p$ is <strong>possible</strong>) just when $p$ is true in at least one world accessible from $w$</li>
           </ul>
         </div>
         <p>
-          Regardless, if we have a proposition $p$ and current world $w$, $\Box{}p$ holds ($p$ is <strong>necessary</strong>) just when $p$ is true in all worlds accessible from $w$ and $\Diamond{}p$ holds ($p$ is <strong>possible</strong>) just when $p$ is true in at least one such world.
-        </p>
-        <p>
-          What does it mean for a world to be 'accessible'? The clearest example may be that of a computer: an 'accessible' state is simply a successor state, one that is reachable from the current state.
+          What does it mean for a world to be 'accessible'? The clearest example is surely that of a computer: an 'accessible' state is simply a successor state, one that is immediately reachable from the current state.
           As such, the set of all possible worlds isn't just an unstructured mess, but is ordered by an <strong>accessibility relation</strong> that says which worlds we can get to from which others.
         </p>
         <div class="example">
           <p>
-            Let's illustrate this further with an example from linguistics. Consider the English sentence below, shown with three possible readings:
+            Let's illustrate this further with an example from linguistics.
+            When one speaks of what may or must be so, we can view this as talking about what is true in some or all possible worlds.
+            Yet we're seldom concerned with every single possible world at once: when conversing about the current weather, things like pens and dinosaurs are typically far from one's mind.
+            Rather, we're only concerned with a relevant subset of these possibilities&mdash;just those worlds which are accessible from the actual world via some implicit relation.
           </p>
-          <div class="well">
-            <p>'He <strong>must</strong> be at work right now.'</p>
-            <ol>
-              <li><strong>alethic</strong>: It is logically impossible that he is not at work right now.</li>
-              <li><strong>epistemic</strong>: Judging from his working habits, he is certainly at work right now.</li>
-              <li><strong>deontic</strong>: Given his office's policies, he is required to be at work right now.</li>
-            </ol>
-          </div>
           <p>
-            If we take $p$ to stand for 'he is at work right now', all three readings are available interpretations for $\Box{}p$.
-            First, the <strong>alethic</strong> reading is based on what is logically consistent.
-            This is an unusual interpretation for our example sentence (as opposed to 'what goes up <strong>must</strong> come down'), but this is the meaning of $\Box{}p$ when our accessibility relation lets us go from any world to any other (i.e., when we consider every possible world at once).
-            Next, the <strong>epistemic</strong> reading is based on what is known.
-            Here the accessible worlds are just those which are consistent with all the information that one has, such as the knowledge of the referent's working habits.
-            Finally, the <strong>deontic</strong> reading is based on what is obligated.
-            Thus the accessible worlds are the ones where the referent fulfills his duties, i.e., where he acts in accordance with office policy.
+            The English sentences below show three kinds of accessibility relations at work:
+          </p>
+          <table class="table table-striped relation-table">
+            <thead>
+              <tr><th>Example sentence</th><th>Modality type</th><th>Accessible worlds</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>It <strong>must</strong> have rained overnight.</td><td>epistemic</td><td>worlds consistent with one's knowledge</td></tr>
+              <tr><td>You <strong>must</strong> arrive before noon.</td><td>deontic</td><td>worlds consistent with one's obligations</td></tr>
+              <tr><td>A triangle <strong>must</strong> have three vertices.</td><td>alethic</td><td>worlds consistent with logic (= all worlds)</td></tr>
+            </tbody>
+          </table>
+          <p>
+            These sentences might be represented as $\Box{}p$, $\Box{}q$, and $\Box{}r$, but the box operator has a noticeably different interpretation in each case.
+          </p>
+          <p>
+            In the first case, we can imagine someone who, upon leaving their house in the morning, notices that the sidewalk is wet.
+            Based on this observation, they conclude that it has rained overnight. 
+            Here, the worlds under consideration are just those which are consistent with the speaker's knowledge, in particular, their observation of the sidewalk.
+            Thus the box means something like, 'Given what is known, it must be the case that...'.
+            This 'knowledge-based' interpretation of the modal operators is known as <strong>epistemic</strong> modality.
+          </p>
+          <p>
+            The second sentence might be uttered by airport staff to inform a passenger of the time that their flight boards.
+            In this case, the relevant worlds are those consistent with the passenger's obligations, namely, to get to their airplane punctually.
+            The box here means, 'Given what is obligated, it must be the case that...'.
+            This 'obligation-based' interpretation of the modal operators is known as <strong>deontic</strong> modality.
+          </p>
+          <p>
+            Finally, suppose that we remove all restrictions and let the modal operators range over every single possible world at once.
+            But we've talked about the infinity of possible worlds&mdash;what could they possibly all have in common?
+            One thing only: logical consistency.
+            Under this so-called <strong>alethic</strong> modality, the box now means, 'It is logically necessary that...'.
+            This interpretation may not be commonplace in daily conversation, but is useful for discussing mathematics, as in the third sentence: by definition, a triangle has three vertices, otherwise it wouldn't be a triangle!
           </p>
         </div>
         <p>
           Conveniently, we can view possible world semantics as an extension of truth tables.
           In propositional logic, we only had to fix a truth value for each propositional variable once, but in modal logic, each propositional variable can take a different truth value at each possible world.
-          Even when two worlds have the same truth assignment, formulas with $\Box$ or $\Diamond$ may have a different truth value in each world due to the accessibility relation.  
+          Even when two worlds have the same truth assignment, formulas with $\Box$ or $\Diamond$ might have a different truth value in each world, since the worlds accessible from each may not be the same.  
           Thus we might say that each possible world "has its own truth table".
           A complete assignment of truth values to each variable at each world is known as a <strong>valuation</strong>.
         </p>
@@ -259,7 +283,7 @@
           <p>
             Using the computer program metaphor, imagine a scenario where $p$ stands for 'the program is running' and $q$ stands for 'the program has terminated'.
             Then state 0 of our model represents the state where the program is about to launch (neither running nor terminated), state 1 is the running (and non-terminated) state, and state 2 is the terminated (and no longer running) state.
-            As for the accessibility relation, from the ready-to-launch state, the only option is to transition to the running state; at the running state, the program can either continue to run (the reflexive edge is indicated by a bold circle) or terminate; and the terminated state is the end of the line, so to speak.
+            As for the accessibility relation: from the ready-to-launch state, the only option is to transition to the running state; at the running state, the program can either continue to run (the reflexive edge is indicated by a bold circle) or terminate; and the terminated state is the end of the line, so to speak.
           </p>
           <p>
             We can then evaluate formulas based on this model. For instance, $\Diamond(p\land\lnot{}q)$ says 'there is a transition to a running-and-not-terminated state (i.e., to state 1)', or more naturally, that the program is able to run (or keep running).
@@ -297,6 +321,8 @@
           </li>
         </ul>
       </section>
+      <footer>
+      </footer>
     </div>
   </body>
 

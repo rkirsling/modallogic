@@ -8,6 +8,10 @@ body {
   margin: 0 auto;
 }
 
+.inactive {
+  display: none;
+}
+
 img.github-link {
   position: absolute;
   top: 0;
@@ -64,10 +68,6 @@ h3 {
   height: 100%;
   position: relative;
   overflow: hidden;
-}
-
-.inactive {
-  display: none;
 }
 
 div.var-count {
@@ -263,7 +263,17 @@ text.id {
   border-right: 1px solid #ddd;
 }
 
-.well > ul, .well > ol {
+.relation-table th:first-child,
+.relation-table td:first-child {
+  width: 350px;
+}
+
+.relation-table th:nth-child(2),
+.relation-table td:nth-child(2) {
+  width: 200px;
+}
+
+.well > ul, .well > ol, .well > table {
   margin-bottom: 0;
 }
 
@@ -299,4 +309,8 @@ svg.static * {
 
 .indent {
   margin-left: 10px;
+}
+
+footer {
+  margin-top: 50px;
 }
