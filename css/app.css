@@ -27,17 +27,12 @@ h1 {
 h2 {
   font-size: 24px;
   font-weight: 300;
-  margin-top: 50px;
 }
 
 h3 {
   font-size: 20px;
   line-height: 36px;
   font-weight: 300;
-  margin-top: 30px;
-  border-top: 1px solid #bce8f1;
-  color: #3a87ad;
-  letter-spacing: 2px;
 }
 
 #mode-select {
@@ -239,6 +234,21 @@ text.id {
   font-weight: bold;
 }
 
+#whatis h2 {
+  margin-top: 50px;
+}
+
+#whatis h3 {
+  margin-top: 30px;
+  border-top: 1px solid #bce8f1;
+  color: #3a87ad;
+  letter-spacing: 2px;
+}
+
+#whatis h3:nth-of-type(2) {
+  text-align: right;
+}
+
 .table-striped tr:last-child td:first-child {
   border-bottom-left-radius: 4px;
 }
@@ -312,5 +322,7 @@ svg.static * {
 }
 
 footer {
-  margin-top: 50px;
+  margin: 75px 0 25px;
+  text-align: center;
+  font-size: 13px;
 }
