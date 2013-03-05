@@ -21,7 +21,7 @@ var model = new MPL.Model(),
 var modelParam = window.location.search.match(/\?model=(.*)/);
 if(modelParam) modelString = modelParam[1];
 
-model.importFromString(modelString);
+model.loadFromModelString(modelString);
 
 // set up initial nodes and links (edges) of graph, based on MPL model
 var lastNodeId = -1,
@@ -165,9 +165,9 @@ function evaluateFormula() {
   }
 
   // parse formula and catch bad input
-  var jsonFormula = null;
+  var wff = null;
   try {
-    jsonFormula = MPL.wffToJSON(formula);
+    wff = new MPL.Wff(formula);
   } catch(e) {
     evalOutput
       .html('<div class="alert">Invalid formula!</div>')
@@ -180,7 +180,7 @@ function evaluateFormula() {
       falseStates = [];
   nodes.forEach(function(node, index) {
     var id = node.id,
-        truthVal = MPL.truth(model, id, jsonFormula);
+        truthVal = MPL.truth(model, id, wff);
 
     if(truthVal) trueStates.push(id);
     else falseStates.push(id);
@@ -193,7 +193,7 @@ function evaluateFormula() {
 
   // display evaluated formula
   currentFormula
-    .html('<strong>Current formula:</strong><br>$' + MPL.wffToLaTeX(formula) + '$')
+    .html('<strong>Current formula:</strong><br>$' + wff.latex() + '$')
     .classed('inactive', false);
 
   // display truth evaluation
@@ -263,9 +263,9 @@ function setVarCount(count) {
 function setVarForSelectedNode(varnum, value) {
   //update node in graph and state in model
   selected_node.vals[varnum] = value;
-  var options = {};
-  options[propvars[varnum]] = value;
-  model.editState(selected_node.id, options);
+  var update = {};
+  update[propvars[varnum]] = value;
+  model.editState(selected_node.id, update);
 
   //update buttons
   var row = d3.select(varTableRows[0][varnum]);
