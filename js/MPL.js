@@ -25,11 +25,11 @@ var MPL = (function() {
   var propRegEx = /^\w+$/;
 
   /**
-   * Constructor for MPL wff.
+   * Constructor for MPL wff. Takes either ASCII or JSON representation as input.
    * @constructor
    */
   function Wff(asciiOrJSON) {
-    // Strings for the four representations.
+    // Strings for the four representations: ASCII, JSON, LaTeX, and Unicode.
     var _ascii = '', _json = '', _latex = '', _unicode = '';
 
     /**
@@ -167,7 +167,7 @@ var MPL = (function() {
   }
 
   /**
-   * Constructor for Kripke model.
+   * Constructor for Kripke model. Takes no initial input.
    * @constructor
    */
   function Model() {
@@ -240,8 +240,8 @@ var MPL = (function() {
       var self = this;
 
       _states[state] = null;
-      _states.forEach(function(source) {
-        if(source) self.removeTransition(source, state);
+      _states.forEach(function(source, index) {
+        if(source) self.removeTransition(index, state);
       });
     };
 
@@ -250,7 +250,7 @@ var MPL = (function() {
      */
     this.getStates = function() {
       var stateList = [];
-      _states.forEach(function(state, index) {
+      _states.forEach(function(state) {
         if(state) stateList.push(state.assignment);
         else stateList.push(null);
       });
