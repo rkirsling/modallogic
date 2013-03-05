@@ -25,114 +25,145 @@ var MPL = (function() {
   var propRegEx = /^\w+$/;
 
   /**
-   * Helper function for removing all whitespace from a string.
-   * @private
+   * Constructor for MPL wff.
+   * @constructor
    */
-  function _removeWhitespace(str) {
-    return str.match(/\S+/g).join('');
-  }
+  function Wff(asciiOrJSON) {
+    // Strings for the four representations.
+    var _ascii = '', _json = '', _latex = '', _unicode = '';
 
-  /**
-   * Converts an MPL wff string to its JSON representation.
-   * @private
-   */
-  function _wffToJSON(wff) {
-    var json    = {},
-        subwffs = [];
+    /**
+     * Converts an MPL wff from ASCII to JSON.
+     * @private
+     */
+    function _asciiToJSON(ascii) {
+      var json    = {},
+          subwffs = [];
 
-    if(propRegEx.test(wff))
-      json.prop = wff;
-    else if(wff.charAt(0) === '~')
-      json.neg = _wffToJSON(wff.slice(1));
-    else if(wff.substr(0, 2) === '[]')
-      json.nec = _wffToJSON(wff.slice(2));
-    else if(wff.substr(0, 2) === '<>')
-      json.poss = _wffToJSON(wff.slice(2));
-    else if(subwffs = wff.match(conjRegEx))
-      json.conj = [_wffToJSON(subwffs[1]), _wffToJSON(subwffs[2])];
-    else if(subwffs = wff.match(disjRegEx))
-      json.disj = [_wffToJSON(subwffs[1]), _wffToJSON(subwffs[2])];
-    else if(subwffs = wff.match(implRegEx))
-      json.impl = [_wffToJSON(subwffs[1]), _wffToJSON(subwffs[2])];
-    else if(subwffs = wff.match(equiRegEx))
-      json.equi = [_wffToJSON(subwffs[1]), _wffToJSON(subwffs[2])];
-    else
-      throw new Error('Invalid formula!');
+      if(propRegEx.test(ascii))
+        json.prop = ascii;
+      else if(ascii.charAt(0) === '~')
+        json.neg = _asciiToJSON(ascii.slice(1));
+      else if(ascii.substr(0, 2) === '[]')
+        json.nec = _asciiToJSON(ascii.slice(2));
+      else if(ascii.substr(0, 2) === '<>')
+        json.poss = _asciiToJSON(ascii.slice(2));
+      else if(subwffs = ascii.match(conjRegEx))
+        json.conj = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
+      else if(subwffs = ascii.match(disjRegEx))
+        json.disj = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
+      else if(subwffs = ascii.match(implRegEx))
+        json.impl = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
+      else if(subwffs = ascii.match(equiRegEx))
+        json.equi = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
+      else
+        throw new Error('Invalid formula!');
 
-    return json;
-  }
+      return json;
+    }
 
-  /**
-   * Converts a (whitespace-insensitive) MPL wff string to its JSON representation.
-   */
-  function wffToJSON(wff) {
-    return _wffToJSON(_removeWhitespace(wff));
-  }
+    /**
+     * Converts an MPL wff from JSON to ASCII.
+     * @private
+     */
+    function _jsonToASCII(json) {
+      if(json.prop)
+        return json.prop;
+      else if(json.neg)
+        return '~' + _jsonToASCII(json.neg);
+      else if(json.nec)
+        return '[]' + _jsonToASCII(json.nec);
+      else if(json.poss)
+        return '<>' + _jsonToASCII(json.poss);
+      else if(json.conj && json.conj.length === 2)
+        return '(' + _jsonToASCII(json.conj[0]) + ' & ' + _jsonToASCII(json.conj[1]) + ')';
+      else if(json.disj && json.disj.length === 2)
+        return '(' + _jsonToASCII(json.disj[0]) + ' | ' + _jsonToASCII(json.disj[1]) + ')';
+      else if(json.impl && json.impl.length === 2)
+        return '(' + _jsonToASCII(json.impl[0]) + ' -> ' + _jsonToASCII(json.impl[1]) + ')';
+      else if(json.equi && json.equi.length === 2)
+        return '(' + _jsonToASCII(json.equi[0]) + ' <-> ' + _jsonToASCII(json.equi[1]) + ')';
+      else
+        throw new Error('Invalid JSON for formula!');
+    }
 
-  /**
-   * Converts the JSON representation of an MPL wff to its string representation.
-   */
-  function jsonToWff(json) {
-    if(json.prop)
-      return json.prop;
-    else if(json.neg)
-      return '~' + jsonToWff(json.neg);
-    else if(json.nec)
-      return '[]' + jsonToWff(json.nec);
-    else if(json.poss)
-      return '<>' + jsonToWff(json.poss);
-    else if(json.conj && json.conj.length === 2)
-      return '(' + jsonToWff(json.conj[0]) + ' & ' + jsonToWff(json.conj[1]) + ')';
-    else if(json.disj && json.disj.length === 2)
-      return '(' + jsonToWff(json.disj[0]) + ' | ' + jsonToWff(json.disj[1]) + ')';
-    else if(json.impl && json.impl.length === 2)
-      return '(' + jsonToWff(json.impl[0]) + ' -> ' + jsonToWff(json.impl[1]) + ')';
-    else if(json.equi && json.equi.length === 2)
-      return '(' + jsonToWff(json.equi[0]) + ' <-> ' + jsonToWff(json.equi[1]) + ')';
-    else
-      throw new Error('Invalid JSON for formula!');
-  }
+    /**
+     * Converts an MPL wff from ASCII to LaTeX.
+     * @private
+     */
+    function _asciiToLaTeX(ascii) {
+      return ascii.replace(/~/g,      '\\lnot{}')
+                  .replace(/\[\]/g,   '\\Box{}')
+                  .replace(/<>/g,     '\\Diamond{}')
+                  .replace(/ & /g,    '\\land{}')
+                  .replace(/ \| /g,   '\\lor{}')
+                  .replace(/ <-> /g,  '\\leftrightarrow{}')
+                  .replace(/ -> /g,   '\\rightarrow{}');
+    }
 
-  /**
-   * Converts an MPL wff string to a LaTeX expression.
-   */
-  function wffToLaTeX(wff) {
-    wff = _removeWhitespace(wff);
-    return wff.replace(/~/g,    '\\lnot{}')
-              .replace(/\[\]/g, '\\Box{}')
-              .replace(/<>/g,   '\\Diamond{}')
-              .replace(/&/g,    '\\land{}')
-              .replace(/\|/g,   '\\lor{}')
-              .replace(/<->/g,  '\\leftrightarrow{}')
-              .replace(/->/g,   '\\rightarrow{}');
-  }
+    /**
+     * Converts an MPL wff from ASCII to Unicode.
+     * @private
+     */
+    function _asciiToUnicode(ascii) {
+      return ascii.replace(/~/g,    '\u00ac')
+                  .replace(/\[\]/g, '\u25a1')
+                  .replace(/<>/g,   '\u25ca')
+                  .replace(/&/g,    '\u2227')
+                  .replace(/\|/g,   '\u2228')
+                  .replace(/<->/g,  '\u2194')
+                  .replace(/->/g,   '\u2192');
+    }
 
-  /**
-   * Converts the JSON representation of an MPL wff to a LaTeX expression.
-   */
-  function jsonToLaTeX(json) {
-    return wffToLaTeX(jsonToWff(json));
-  }
+    /**
+     * Returns the ASCII representation of an MPL wff.
+     */
+    this.ascii = function() {
+      return _ascii;
+    };
 
-  /**
-   * Converts an (ASCII) MPL wff string to a Unicode string for displaying.
-   */
-  function wffToUnicode(wff) {
-    wff = _removeWhitespace(wff);
-    return wff.replace(/~/g,    '\u00ac')
-              .replace(/\[\]/g, '\u25a1')
-              .replace(/<>/g,   '\u22c4')
-              .replace(/&/g,    ' \u2227 ')
-              .replace(/\|/g,   ' \u2228 ')
-              .replace(/<->/g,  ' \u2194 ')
-              .replace(/->/g,   ' \u2192 ');
-  }
+    /**
+     * Returns the JSON representation of an MPL wff.
+     */
+    this.json = function() {
+      return _json;
+    };
 
-  /**
-   * Converts the JSON representation of an MPL wff to a Unicode string for displaying.
-   */
-  function jsonToUnicode(json) {
-    return wffToUnicode(jsonToWff(json));
+    /**
+     * Returns the LaTeX representation of an MPL wff.
+     */
+    this.latex = function() {
+      return _latex;
+    };
+
+    /**
+     * Returns the Unicode representation of an MPL wff.
+     */
+    this.unicode = function() {
+      return _unicode;
+    };
+
+    // init
+    (function(asciiOrJSON) {
+      if(typeof asciiOrJSON === 'string') {
+        // ASCII input: remove whitespace before conversion, re-insert it after
+        var ascii = asciiOrJSON.match(/\S+/g).join('');
+        _json = _asciiToJSON(ascii);
+        _ascii = ascii.replace(/&/g,      ' & ')
+                      .replace(/\|/g,     ' | ')
+                      .replace(/<->/g,    '***')
+                      .replace(/->/g,     ' -> ')
+                      .replace(/\*\*\*/g, ' <-> ');
+      } else if(typeof asciiOrJSON === 'object') {
+        // JSON input
+        var json = asciiOrJSON;
+        _ascii = _jsonToASCII(json);
+        _json = json;
+      } else return;
+
+      _latex = _asciiToLaTeX(_ascii);
+      _unicode = _asciiToUnicode(_ascii);
+    })(asciiOrJSON);
   }
 
   /**
@@ -149,7 +180,7 @@ var MPL = (function() {
     var _states = [];
 
     /**
-     * Adds a transition to the model, given two state indices.
+     * Adds a transition to the model, given source and target state indices.
      */
     this.addTransition = function(source, target) {
       if(!_states[source] || !_states[target]) return;
@@ -158,7 +189,7 @@ var MPL = (function() {
     };
 
     /**
-     * Removes a transition from the model, given two state indices.
+     * Removes a transition from the model, given source and target state indices.
      */
     this.removeTransition = function(source, target) {
       if(!_states[source]) return;
@@ -241,33 +272,33 @@ var MPL = (function() {
      * ex: [{assignment: {'p':false, 'q':true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
      *     compresses to 'AqS0,2;;AS;'
      */
-    this.exportToString = function() {
-      var output = '';
+    this.getModelString = function() {
+      var modelString = '';
 
       _states.forEach(function(state) {
         if(state) {
-          output += 'A' + Object.keys(state.assignment).join();
-          output += 'S' + state.successors.join();
+          modelString += 'A' + Object.keys(state.assignment).join();
+          modelString += 'S' + state.successors.join();
         }
-        output += ';';
+        modelString += ';';
       });
 
-      return output;
+      return modelString;
     };
 
     /**
-     * Restores a model from an export string.
+     * Restores a model from a given model string.
      */
-    this.importFromString = function(input) {
+    this.loadFromModelString = function(modelString) {
       var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
-      if(!regex.test(input)) return;
+      if(!regex.test(modelString)) return;
       
       _states = [];
 
       var self = this,
           successorLists = [];
 
-      var inputStates = input.split(';').slice(0, -1);
+      var inputStates = modelString.split(';').slice(0, -1);
       inputStates.forEach(function(state) {
         if(!state) {
           _states.push(null);
@@ -322,25 +353,19 @@ var MPL = (function() {
   }
 
   /**
-   * Evaluate the truth of an MPL wff (as string or JSON) at a given state within a given model.
+   * Evaluate the truth of an MPL wff at a given state within a given model.
    */
   function truth(model, state, wff) {
     if(!(model instanceof MPL.Model)) throw new Error('Invalid model!');
     if(!model.getStates()[state]) throw new Error('State ' + state + ' not found!');
+    if(!(wff instanceof MPL.Wff)) throw new Error('Invalid wff!');
     
-    var json = (typeof wff === 'string') ? wffToJSON(wff) : wff;
-    
-    return _truth(model, state, json);
+    return _truth(model, state, wff.json());
   }
 
   // export public methods
   return {
-    wffToJSON: wffToJSON,
-    jsonToWff: jsonToWff,
-    wffToLaTeX: wffToLaTeX,
-    jsonToLaTeX: jsonToLaTeX,
-    wffToUnicode: wffToUnicode,
-    jsonToUnicode: jsonToUnicode,
+    Wff: Wff,
     Model: Model,
     truth: truth
   };
