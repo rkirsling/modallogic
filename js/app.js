@@ -1,7 +1,8 @@
 /**
  * Modal Logic Playground -- application code
  * 
- * D3 directed graph code based largely on the tutorials at https://github.com/mbostock/d3/wiki/Gallery
+ * Copyright (c) 2013 Ross Kirsling
+ * Released under MIT License.
  */
 
 // app mode constants
@@ -131,6 +132,25 @@ function resetMouseVars() {
   mousedown_node = null;
   mouseup_node = null;
   mousedown_link = null;
+}
+
+// handles for 'Link to Model' dialog
+var backdrop = d3.select('.modal-backdrop'),
+    linkDialog = d3.select('#link-dialog'),
+    linkInputElem = linkDialog.select('input').node();
+
+function showLinkDialog() {
+  linkInputElem.value = 'http://rkirsling.github.com/modallogic/?model=' + model.getModelString(); 
+
+  backdrop.classed('inactive', false);
+  setTimeout(function() { backdrop.classed('in', true); linkDialog.classed('inactive', false); }, 0);
+  setTimeout(function() { linkDialog.classed('in', true); }, 150);
+}
+
+function hideLinkDialog() {
+  linkDialog.classed('in', false);
+  setTimeout(function() { linkDialog.classed('inactive', true); backdrop.classed('in', false); }, 150);
+  setTimeout(function() { backdrop.classed('inactive', true); }, 300);
 }
 
 // handles for dynamic content in panel

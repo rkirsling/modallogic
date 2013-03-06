@@ -21,6 +21,9 @@
             <i class="icon-eye-open icon-white"></i> Evaluate Formula
           </button>
         </div>
+        <div id="model-link">
+          <button class="btn btn-inverse" onclick="showLinkDialog()">Link to Current Model</button>
+        </div>
         <div id="app-body">
           <div class="panel tab-content">
             <div id="edit-pane" class="tab-pane active">
@@ -324,6 +327,17 @@
       <footer>
         Modal Logic Playground is a creation of <a href="http://github.com/rkirsling">Ross Kirsling</a>, released under the <a href="http://opensource.org/licenses/mit-license.php">MIT License</a>. 
       </footer>
+    </div>
+    <div class="modal-backdrop fade inactive" onclick="hideLinkDialog()"></div>
+    <div id="link-dialog" class="modal fade inactive">
+      <div class="modal-header">
+        <button type="button" class="close" onclick="hideLinkDialog()">&times;</button>
+        <h3>Link to Model</h3>
+      </div>
+      <div class="modal-body">
+        <p>Copy the following URL to save your model for later or to share it with others:</p>
+        <input type="text" value="" readonly onclick="this.select()">    
+      </div>
     </div>
   </body>
 

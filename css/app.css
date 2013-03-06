@@ -39,6 +39,10 @@ h3 {
   margin-bottom: 8px;
 }
 
+#model-link {
+  float: right;
+}
+
 #app-body {
   border: 1px solid #e3e3e3;
   border-radius: 4px;
@@ -325,4 +329,19 @@ footer {
   margin: 75px 0 25px;
   text-align: center;
   font-size: 13px;
+}
+
+#link-dialog.in {
+  top: 302px;
+}
+
+#link-dialog .modal-header {
+  background-color: #f7f7f7;
+  border-radius: 5px 5px 0 0;
+}
+
+#link-dialog input {
+  width: 516px;
+  background-color: #fff;
+  cursor: default;
 }
