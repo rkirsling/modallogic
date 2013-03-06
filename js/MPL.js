@@ -1,8 +1,10 @@
 /**
- * MPL: A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
+ * MPL v1.0.0
  *
- * @author  Ross Kirsling
- * @version 1.0.0
+ * A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
+ *
+ * Copyright (c) 2013 Ross Kirsling
+ * Released under MIT License.
  */
 
 var MPL = (function() {
@@ -143,8 +145,8 @@ var MPL = (function() {
       return _unicode;
     };
 
-    // init
-    (function(asciiOrJSON) {
+
+    function _init(asciiOrJSON) {
       if(typeof asciiOrJSON === 'string') {
         // ASCII input: remove whitespace before conversion, re-insert it after
         var ascii = asciiOrJSON.match(/\S+/g).join('');
@@ -163,7 +165,9 @@ var MPL = (function() {
 
       _latex = _asciiToLaTeX(_ascii);
       _unicode = _asciiToUnicode(_ascii);
-    })(asciiOrJSON);
+    }
+
+    _init(asciiOrJSON);
   }
 
   /**
@@ -221,7 +225,7 @@ var MPL = (function() {
     };
 
     /**
-     * Edits the assignment of a state in the model, given a state index and a new (partial) assignment.
+     * Edits the assignment of a state in the model, given a state index and a new partial assignment.
      */
     this.editState = function(state, assignment) {
       if(!_states[state]) return;
@@ -233,7 +237,7 @@ var MPL = (function() {
     };
 
     /**
-     * Removes a state (and all related transitions) from the model, given a state index.
+     * Removes a state and all related transitions from the model, given a state index.
      */
     this.removeState = function(state) {
       if(!_states[state]) return;
@@ -247,6 +251,7 @@ var MPL = (function() {
 
     /**
      * Returns an array containing the assignment (or null) of each state in the model.
+     * (Only true propositional variables are returned in each assignment.)
      */
     this.getStates = function() {
       var stateList = [];
@@ -269,7 +274,7 @@ var MPL = (function() {
 
     /**
      * Returns current model as a compact string suitable for use as a URL parameter.
-     * ex: [{assignment: {'p':false, 'q':true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
+     * ex: [{assignment: {'q': true}, successors: [0,2]}, null, {assignment: {}, successors: []}]
      *     compresses to 'AqS0,2;;AS;'
      */
     this.getModelString = function() {
@@ -296,9 +301,10 @@ var MPL = (function() {
       _states = [];
 
       var self = this,
-          successorLists = [];
+          successorLists = [],
+          inputStates = modelString.split(';').slice(0, -1);
 
-      var inputStates = modelString.split(';').slice(0, -1);
+      // restore states
       inputStates.forEach(function(state) {
         if(!state) {
           _states.push(null);
@@ -317,6 +323,7 @@ var MPL = (function() {
         successorLists.push(successors);
       });
 
+      // restore transitions
       successorLists.forEach(function(successors, source) {
         if(!successors) return;
 
@@ -324,7 +331,7 @@ var MPL = (function() {
           self.addTransition(source, target);
         });
       });
-    }
+    };
   }
 
   /**
