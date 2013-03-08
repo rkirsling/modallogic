@@ -35,12 +35,18 @@ h3 {
   font-weight: 300;
 }
 
+#app {
+  position: relative;
+}
+
 #mode-select {
   margin-bottom: 8px;
 }
 
 #model-link {
-  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 #app-body {
