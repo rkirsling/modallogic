@@ -2,6 +2,8 @@
 
 MPL is a library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
 
+MPL has a single dependency, [Underscore.js](http://underscorejs.org/), to ensure compatibility with browsers that do not support JavaScript 1.6.
+
 
 ## Parsing and displaying wffs
 

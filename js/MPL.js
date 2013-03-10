@@ -1,14 +1,18 @@
-/**
- * MPL v1.0.0
+/*!
+ * MPL v1.1.0
+ * (http://github.com/rkirsling/modallogic)
  *
  * A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
+ * 
+ * Dependencies: Underscore.js
  *
  * Copyright (c) 2013 Ross Kirsling
- * Released under MIT License.
+ * Released under the MIT License.
  */
-
 var MPL = (function() {
   'use strict';
+
+  if(typeof _ !== 'function') throw new Error('MPL requires Underscore.js!');
 
   // sub-regexes
   var beginPart         = '^\\(',
@@ -44,11 +48,11 @@ var MPL = (function() {
 
       if(propRegEx.test(ascii))
         json.prop = ascii;
-      else if(ascii.charAt(0) === '~')
+      else if(ascii.slice(0, 1) === '~')
         json.neg = _asciiToJSON(ascii.slice(1));
-      else if(ascii.substr(0, 2) === '[]')
+      else if(ascii.slice(0, 2) === '[]')
         json.nec = _asciiToJSON(ascii.slice(2));
-      else if(ascii.substr(0, 2) === '<>')
+      else if(ascii.slice(0, 2) === '<>')
         json.poss = _asciiToJSON(ascii.slice(2));
       else if(subwffs = ascii.match(conjRegEx))
         json.conj = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
@@ -199,7 +203,7 @@ var MPL = (function() {
       if(!_states[source]) return;
 
       var successors = _states[source].successors,
-          index = successors.indexOf(target);
+          index = _(successors).indexOf(target);
       if(index !== -1) successors.splice(index, 1);
     };
 
@@ -244,7 +248,7 @@ var MPL = (function() {
       var self = this;
 
       _states[state] = null;
-      _states.forEach(function(source, index) {
+      _(_states).each(function(source, index) {
         if(source) self.removeTransition(index, state);
       });
     };
@@ -255,7 +259,7 @@ var MPL = (function() {
      */
     this.getStates = function() {
       var stateList = [];
-      _states.forEach(function(state) {
+      _(_states).each(function(state) {
         if(state) stateList.push(state.assignment);
         else stateList.push(null);
       });
@@ -280,9 +284,9 @@ var MPL = (function() {
     this.getModelString = function() {
       var modelString = '';
 
-      _states.forEach(function(state) {
+      _(_states).each(function(state) {
         if(state) {
-          modelString += 'A' + Object.keys(state.assignment).join();
+          modelString += 'A' + _.keys(state.assignment).join();
           modelString += 'S' + state.successors.join();
         }
         modelString += ';';
@@ -305,29 +309,29 @@ var MPL = (function() {
           inputStates = modelString.split(';').slice(0, -1);
 
       // restore states
-      inputStates.forEach(function(state) {
+      _(inputStates).each(function(state) {
         if(!state) {
           _states.push(null);
           successorLists.push(null);
           return;
         }
 
-        var stateProperties = state.match(/A(.*)S(.*)/).slice(1,3)
-                                   .map(function(substr) { return (substr ? substr.split(',') : []); });
+        var stateProperties = _(state.match(/A(.*)S(.*)/).slice(1, 3))
+                                     .map(function(substr) { return (substr ? substr.split(',') : []); });
 
         var assignment = {};
-        stateProperties[0].forEach(function(propvar) { assignment[propvar] = true; });
+        _(stateProperties[0]).each(function(propvar) { assignment[propvar] = true; });
         _states.push({assignment: assignment, successors: []});
 
-        var successors = stateProperties[1].map(function(succState) { return +succState; });
+        var successors = _(stateProperties[1]).map(function(succState) { return +succState; });
         successorLists.push(successors);
       });
 
       // restore transitions
-      successorLists.forEach(function(successors, source) {
+      _(successorLists).each(function(successors, source) {
         if(!successors) return;
 
-        successors.forEach(function(target) {
+        _(successors).each(function(target) {
           self.addTransition(source, target);
         });
       });
@@ -352,9 +356,9 @@ var MPL = (function() {
     else if(json.equi)
       return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
     else if(json.nec)
-      return model.getSuccessorsOf(state).every(function(succState) { return _truth(model, succState, json.nec); });
+      return _(model.getSuccessorsOf(state)).every(function(succState) { return _truth(model, succState, json.nec); });
     else if(json.poss)
-      return model.getSuccessorsOf(state).some(function(succState) { return _truth(model, succState, json.poss); });
+      return _(model.getSuccessorsOf(state)).some(function(succState) { return _truth(model, succState, json.poss); });
     else
       throw new Error('Invalid formula!');
   }
