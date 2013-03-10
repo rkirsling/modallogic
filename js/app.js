@@ -1,8 +1,10 @@
 /**
  * Modal Logic Playground -- application code
  * 
+ * Dependencies: D3, MathJax, MPL
+ *
  * Copyright (c) 2013 Ross Kirsling
- * Released under MIT License.
+ * Released under the MIT License.
  */
 
 // app mode constants
