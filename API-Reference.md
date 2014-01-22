@@ -2,7 +2,7 @@
 
 MPL is a library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
 
-MPL has a single dependency, [Underscore.js](http://underscorejs.org/), to ensure compatibility with browsers that do not support JavaScript 1.6.
+MPL has a single dependency, [Underscore.js](http://underscorejs.org/), to ensure compatibility with browsers that do not support ES5 higher-order functions.
 
 
 ## Parsing and displaying wffs
@@ -92,8 +92,8 @@ Mathematically, a Kripke model consists of:
 * an *accessibility relation* (i.e., a set of *transitions*)
 * a *valuation* (a complete assignment of truth values to each variable at each state)
 
-In an MPL `Model`:
-* States are identified by their assignment.
+Specifically, in an MPL `Model`:
+* Each state has a zero-based index and an assignment.
 * An assignment is an object in which the keys are propositional variable names and the values are booleans.
 * Only **true** propositional variables are actually stored! All others are automatically interpreted as false.
 
