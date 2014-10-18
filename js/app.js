@@ -89,7 +89,7 @@ var force = d3.layout.force()
     .size([width, height])
     .linkDistance(150)
     .charge(-500)
-    .on('tick', tick)
+    .on('tick', tick);
 
 // define arrow markers for graph links
 svg.append('svg:defs').append('svg:marker')
@@ -219,11 +219,11 @@ function evaluateFormula() {
     .classed('inactive', false);
 
   // display truth evaluation
-  var latexTrue = trueStates.length ? '$w_{' + trueStates.join('}$, $w_{') + '}$' : '$\\varnothing$';
-  var latexFalse = falseStates.length ? '$w_{' + falseStates.join('}$, $w_{') + '}$' : '$\\varnothing$';
+  var latexTrue  =  trueStates.length ? '$w_{' +  trueStates.join('},$ $w_{') + '}$' : '$\\varnothing$',
+      latexFalse = falseStates.length ? '$w_{' + falseStates.join('},$ $w_{') + '}$' : '$\\varnothing$';
   evalOutput
-    .html('<div class="alert alert-success"><strong>True:</strong><div>' + latexTrue + '</div></div>' +
-          '<div class="alert alert-error"><strong>False:</strong><div>' + latexFalse + '</div></div>')
+    .html('<div class="alert alert-success"><strong>True:</strong><div><div>' + latexTrue + '</div></div></div>' +
+          '<div class="alert alert-error"><strong>False:</strong><div><div>' + latexFalse + '</div></div></div>')
     .classed('inactive', false);
 
   // re-render LaTeX

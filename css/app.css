@@ -110,6 +110,10 @@ table.propvars td.var-name {
   max-height: 40px;
 }
 
+.eval-output .alert > div > div {
+  overflow: hidden;
+}
+
 .eval-output .symbol {
   width: 20px;
   font-weight: bold;
