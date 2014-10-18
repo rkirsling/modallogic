@@ -207,7 +207,7 @@ var MPL = (function () {
     this.getSuccessorsOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _states[source].successors; 
+      return _states[source].successors;
     };
 
     /**
@@ -260,7 +260,7 @@ var MPL = (function () {
 
       return stateList;
     };
-    
+
     /**
      * Returns the truth value of a given propositional variable at a given state index.
      */
@@ -295,7 +295,7 @@ var MPL = (function () {
     this.loadFromModelString = function (modelString) {
       var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
       if (!regex.test(modelString)) return;
-      
+
       _states = [];
 
       var self = this,
@@ -364,7 +364,7 @@ var MPL = (function () {
     if (!(model instanceof MPL.Model)) throw new Error('Invalid model!');
     if (!model.getStates()[state]) throw new Error('State ' + state + ' not found!');
     if (!(wff instanceof MPL.Wff)) throw new Error('Invalid wff!');
-    
+
     return _truth(model, state, wff.json());
   }
 

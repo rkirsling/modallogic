@@ -1,6 +1,6 @@
 /**
  * Modal Logic Playground -- application code
- * 
+ *
  * Dependencies: D3, MathJax, MPL
  *
  * Copyright (c) 2013 Ross Kirsling
@@ -142,7 +142,7 @@ var backdrop = d3.select('.modal-backdrop'),
     linkInputElem = linkDialog.select('input').node();
 
 function showLinkDialog() {
-  linkInputElem.value = 'http://rkirsling.github.com/modallogic/?model=' + model.getModelString(); 
+  linkInputElem.value = 'http://rkirsling.github.com/modallogic/?model=' + model.getModelString();
 
   backdrop.classed('inactive', false);
   setTimeout(function() { backdrop.classed('in', true); linkDialog.classed('inactive', false); }, 0);
@@ -206,7 +206,7 @@ function evaluateFormula() {
 
     if(truthVal) trueStates.push(id);
     else falseStates.push(id);
-    
+
     d3.select(circle[0][index])
       .classed('waiting', false)
       .classed('true', truthVal)
@@ -231,7 +231,7 @@ function evaluateFormula() {
   MathJax.Hub.Queue(['Typeset', MathJax.Hub, evalOutput.node()]);
 }
 
-// set selected node and notify panel of changes 
+// set selected node and notify panel of changes
 function setSelectedNode(node) {
   selected_node = node;
 
@@ -253,7 +253,7 @@ function setSelectedNode(node) {
 function makeAssignmentString(node) {
   var vals = node.vals,
       outputVars = [];
-  
+
   for(var i = 0; i < varCount; i++) {
     // attach 'not' symbol to false values
     outputVars.push((vals[i] ? '' : '\u00ac') + propvars[i]);
