@@ -102,14 +102,12 @@ table.propvars td.var-name {
 
 .eval-output .alert {
   padding-right: 14px;
-  padding-bottom: 4px;
   margin-bottom: 10px;
 }
 
 .eval-output .alert > div {
   overflow-y: auto;
   max-height: 40px;
-  padding-bottom: 4px;
 }
 
 .eval-output .symbol {
