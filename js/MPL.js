@@ -1,5 +1,5 @@
 /**
- * MPL v1.3.0
+ * MPL v1.3.1
  * (http://github.com/rkirsling/modallogic)
  *
  * A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
@@ -16,7 +16,7 @@ var MPL = (function (FormulaParser) {
   var variableKey = 'prop';
 
   var unaries = [
-    { symbol: '~',  key: 'not',  precedence: 4 },
+    { symbol: '~',  key: 'neg',  precedence: 4 },
     { symbol: '[]', key: 'nec',  precedence: 4 },
     { symbol: '<>', key: 'poss', precedence: 4 }
   ];
