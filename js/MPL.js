@@ -1,5 +1,5 @@
 /**
- * MPL v1.3.1
+ * MPL v1.3.2
  * (http://github.com/rkirsling/modallogic)
  *
  * A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
@@ -93,18 +93,6 @@ var MPL = (function (FormulaParser) {
   }
 
   /**
-   * Normalizes whitespace within the ASCII representation of an MPL wff.
-   * @private
-   */
-  function _normalizeASCII(ascii) {
-    return ascii.match(/\S+/g).join('')
-                .replace(/&/g,    ' & ')
-                .replace(/\|/g,   ' | ')
-                .replace(/->/g,   ' -> ')
-                .replace(/< ->/g, ' <-> ');
-  }
-
-  /**
    * Constructor for MPL wff. Takes either ASCII or JSON representation as input.
    * @constructor
    */
@@ -140,20 +128,9 @@ var MPL = (function (FormulaParser) {
       return _unicode;
     };
 
-
-    if (typeof asciiOrJSON === 'string') {
-      // ASCII input
-      var ascii = asciiOrJSON;
-      _ascii = _normalizeASCII(ascii);
-      _json = _asciiToJSON(ascii);
-    } else if (typeof asciiOrJSON === 'object') {
-      // JSON input
-      var json = asciiOrJSON;
-      _ascii = _jsonToASCII(json);
-      _json = json;
-    } else return;
-
-    _latex = _asciiToLaTeX(_ascii);
+    _json    = (typeof asciiOrJSON === 'object') ? asciiOrJSON : _asciiToJSON(asciiOrJSON);
+    _ascii   = _jsonToASCII(_json);
+    _latex   = _asciiToLaTeX(_ascii);
     _unicode = _asciiToUnicode(_ascii);
   }
 
