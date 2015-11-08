@@ -1,66 +1,49 @@
-/*!
- * MPL v1.2.0
+/**
+ * MPL v1.3.0
  * (http://github.com/rkirsling/modallogic)
  *
  * A library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
  *
- * Copyright (c) 2013-2014 Ross Kirsling
+ * Copyright (c) 2013-2015 Ross Kirsling
  * Released under the MIT License.
  */
-var MPL = (function () {
+var MPL = (function (FormulaParser) {
   'use strict';
 
-  // sub-regexes
-  var beginPart         = '^\\(',
-      unaryPart         = '(?:~|\\[\\]|<>)',
-      propOrBinaryPart  = '(?:\\w+|\\(.*\\))',
-      subwffPart        = unaryPart + '*' + propOrBinaryPart,
-      endPart           = '\\)$';
+  // begin formula-parser setup
+  if (typeof FormulaParser === 'undefined') throw new Error('MPL could not find dependency: formula-parser');
 
-  // binary connective regexes
-  var conjRegEx = new RegExp(beginPart + '(' + subwffPart + ')&('   + subwffPart + ')' + endPart), // (p&q)
-      disjRegEx = new RegExp(beginPart + '(' + subwffPart + ')\\|(' + subwffPart + ')' + endPart), // (p|q)
-      implRegEx = new RegExp(beginPart + '(' + subwffPart + ')->('  + subwffPart + ')' + endPart), // (p->q)
-      equiRegEx = new RegExp(beginPart + '(' + subwffPart + ')<->(' + subwffPart + ')' + endPart); // (p<->q)
+  var variableKey = 'prop';
 
-  // proposition regex
-  var propRegEx = /^\w+$/;
+  var unaries = [
+    { symbol: '~',  key: 'not',  precedence: 4 },
+    { symbol: '[]', key: 'nec',  precedence: 4 },
+    { symbol: '<>', key: 'poss', precedence: 4 }
+  ];
+
+  var binaries = [
+    { symbol: '&',   key: 'conj', precedence: 3, associativity: 'right' },
+    { symbol: '|',   key: 'disj', precedence: 2, associativity: 'right' },
+    { symbol: '->',  key: 'impl', precedence: 1, associativity: 'right' },
+    { symbol: '<->', key: 'equi', precedence: 0, associativity: 'right' }
+  ];
+
+  var MPLParser = new FormulaParser(variableKey, unaries, binaries);
+  // end formula-parser setup
 
   /**
    * Converts an MPL wff from ASCII to JSON.
    * @private
    */
-  function _asciiToJSON (ascii) {
-    var json    = {},
-        subwffs = [];
-
-    if (propRegEx.test(ascii))
-      json.prop = ascii;
-    else if (ascii.slice(0, 1) === '~')
-      json.neg = _asciiToJSON(ascii.slice(1));
-    else if (ascii.slice(0, 2) === '[]')
-      json.nec = _asciiToJSON(ascii.slice(2));
-    else if (ascii.slice(0, 2) === '<>')
-      json.poss = _asciiToJSON(ascii.slice(2));
-    else if (subwffs = ascii.match(conjRegEx))
-      json.conj = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
-    else if (subwffs = ascii.match(disjRegEx))
-      json.disj = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
-    else if (subwffs = ascii.match(implRegEx))
-      json.impl = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
-    else if (subwffs = ascii.match(equiRegEx))
-      json.equi = [_asciiToJSON(subwffs[1]), _asciiToJSON(subwffs[2])];
-    else
-      throw new Error('Invalid formula!');
-
-    return json;
+  function _asciiToJSON(ascii) {
+    return MPLParser.parse(ascii);
   }
 
   /**
    * Converts an MPL wff from JSON to ASCII.
    * @private
    */
-  function _jsonToASCII (json) {
+  function _jsonToASCII(json) {
     if (json.prop)
       return json.prop;
     else if (json.neg)
@@ -85,7 +68,7 @@ var MPL = (function () {
    * Converts an MPL wff from ASCII to LaTeX.
    * @private
    */
-  function _asciiToLaTeX (ascii) {
+  function _asciiToLaTeX(ascii) {
     return ascii.replace(/~/g,      '\\lnot{}')
                 .replace(/\[\]/g,   '\\Box{}')
                 .replace(/<>/g,     '\\Diamond{}')
@@ -99,7 +82,7 @@ var MPL = (function () {
    * Converts an MPL wff from ASCII to Unicode.
    * @private
    */
-  function _asciiToUnicode (ascii) {
+  function _asciiToUnicode(ascii) {
     return ascii.replace(/~/g,    '\u00ac')
                 .replace(/\[\]/g, '\u25a1')
                 .replace(/<>/g,   '\u25ca')
@@ -110,10 +93,22 @@ var MPL = (function () {
   }
 
   /**
+   * Normalizes whitespace within the ASCII representation of an MPL wff.
+   * @private
+   */
+  function _normalizeASCII(ascii) {
+    return ascii.match(/\S+/g).join('')
+                .replace(/&/g,    ' & ')
+                .replace(/\|/g,   ' | ')
+                .replace(/->/g,   ' -> ')
+                .replace(/< ->/g, ' <-> ');
+  }
+
+  /**
    * Constructor for MPL wff. Takes either ASCII or JSON representation as input.
    * @constructor
    */
-  function Wff (asciiOrJSON) {
+  function Wff(asciiOrJSON) {
     // Strings for the four representations: ASCII, JSON, LaTeX, and Unicode.
     var _ascii = '', _json = '', _latex = '', _unicode = '';
 
@@ -147,14 +142,10 @@ var MPL = (function () {
 
 
     if (typeof asciiOrJSON === 'string') {
-      // ASCII input: remove whitespace before conversion, re-insert it after
-      var ascii = asciiOrJSON.match(/\S+/g).join('');
+      // ASCII input
+      var ascii = asciiOrJSON;
+      _ascii = _normalizeASCII(ascii);
       _json = _asciiToJSON(ascii);
-      _ascii = ascii.replace(/&/g,      ' & ')
-                    .replace(/\|/g,     ' | ')
-                    .replace(/<->/g,    '***')
-                    .replace(/->/g,     ' -> ')
-                    .replace(/\*\*\*/g, ' <-> ');
     } else if (typeof asciiOrJSON === 'object') {
       // JSON input
       var json = asciiOrJSON;
@@ -170,7 +161,7 @@ var MPL = (function () {
    * Constructor for Kripke model. Takes no initial input.
    * @constructor
    */
-  function Model () {
+  function Model() {
     // Array of states (worlds) in model.
     // Each state is an object with two properties:
     // - assignment: a truth assignment (in which only true values are actually stored)
@@ -336,7 +327,7 @@ var MPL = (function () {
    * Evaluate the truth of an MPL wff (in JSON representation) at a given state within a given model.
    * @private
    */
-  function _truth (model, state, json) {
+  function _truth(model, state, json) {
     if (json.prop)
       return model.valuation(json.prop, state);
     else if (json.neg)
@@ -360,7 +351,7 @@ var MPL = (function () {
   /**
    * Evaluate the truth of an MPL wff at a given state within a given model.
    */
-  function truth (model, state, wff) {
+  function truth(model, state, wff) {
     if (!(model instanceof MPL.Model)) throw new Error('Invalid model!');
     if (!model.getStates()[state]) throw new Error('State ' + state + ' not found!');
     if (!(wff instanceof MPL.Wff)) throw new Error('Invalid wff!');
@@ -375,4 +366,4 @@ var MPL = (function () {
     truth: truth
   };
 
-})();
+})(FormulaParser);

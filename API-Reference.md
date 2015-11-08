@@ -2,8 +2,7 @@
 
 MPL is a library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
 
-MPL has no dependencies, but it does utilize ECMAScript 5 higher-order functions, which are not supported in IE8 and earlier.  
-If your project needs to support IE8 or earlier, please make use of [es5-shim](https://github.com/es-shims/es5-shim).
+MPL has a single dependency, [formula-parser](https://www.npmjs.com/package/formula-parser).
 
 ## Parsing and displaying wffs
 
@@ -16,7 +15,7 @@ MPL wffs can be represented in four ways:
 All four are stored in a `Wff` object, created by providing either the ASCII or JSON representation as input.
 
 In each case:
-* Parentheses matter. Whitespace doesn't.
+* Parentheses and whitespace don't matter.
 * Binary connectives are strictly binary.
 * Propositional variables may be any alphanumeric string.
 
