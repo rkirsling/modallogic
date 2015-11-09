@@ -177,7 +177,7 @@ function evaluateFormula() {
 
   // check formula for bad vars
   var varsInUse = propvars.slice(0, varCount);
-  var badVars = formula.match(/\w+/g).filter(function(v) {
+  var badVars = (formula.match(/\w+/g) || []).filter(function(v) {
     return varsInUse.indexOf(v) === -1;
   });
   if(badVars.length) {
