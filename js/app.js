@@ -79,7 +79,7 @@ var width  = 640,
 
 var svg = d3.select('#app-body .graph')
   .append('svg')
-  .attr('oncontextmenu', 'return false;')
+  .on('contextmenu', function() { d3.event.preventDefault(); })
   .attr('width', width)
   .attr('height', height);
 
