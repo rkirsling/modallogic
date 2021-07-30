@@ -143,7 +143,7 @@ var backdrop = d3.select('.modal-backdrop'),
     linkInputElem = linkDialog.select('input').node();
 
 function showLinkDialog() {
-  linkInputElem.value = 'http://rkirsling.github.com/modallogic/?model=' + model.getModelString();
+  linkInputElem.value = 'http://rkirsling.github.io/modallogic/?model=' + model.getModelString();
 
   backdrop.classed('inactive', false);
   setTimeout(function() { backdrop.classed('in', true); linkDialog.classed('inactive', false); }, 0);
