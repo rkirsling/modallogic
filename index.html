@@ -1,70 +1,111 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Modal Logic Playground</title>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
-    <link rel="stylesheet" href="lib/bootstrap.min.css">
-    <link rel="stylesheet" href="css/app.css">
-  </head>
 
-  <body>
-    <div id="page-container">
-      <a href="https://github.com/rkirsling/modallogic"><img class="github-link" src="img/blacktocat-32.png" title="Fork me on GitHub"></a>
-      <h1>Modal Logic Playground</h1>
-      <section id="app">
-        <div id="mode-select" class="btn-group">
-          <button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
-            <i class="icon-pencil icon-white"></i> Edit Model
-          </button>
-          <button class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
-            <i class="icon-eye-open icon-white"></i> Evaluate Formula
-          </button>
-        </div>
-        <div id="model-link">
-          <button class="btn btn-inverse" onclick="showLinkDialog()">Link to Current Model</button>
-        </div>
-        <div id="app-body">
-          <div class="panel tab-content">
-            <div id="edit-pane" class="tab-pane active">
-              <div class="var-count">
-                Number of propositional variables:
-                <div class="btn-group">
-                  <button class="btn" onclick="setVarCount(1)">1</button>
-                  <button class="btn active" onclick="setVarCount(2)">2</button>
-                  <button class="btn" onclick="setVarCount(3)">3</button>
-                  <button class="btn" onclick="setVarCount(4)">4</button>
-                  <button class="btn" onclick="setVarCount(5)">5</button>
-                </div>
+<head>
+  <meta charset="utf-8">
+  <title>Modal Logic Playground</title>
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,700">
+  <link rel="stylesheet" href="lib/bootstrap.min.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+
+<body>
+  <div id="page-container">
+    <a href="https://github.com/rkirsling/modallogic"><img class="github-link" src="img/blacktocat-32.png"
+        title="Fork me on GitHub"></a>
+    <h1>Modal Logic Playground</h1>
+    <section id="app">
+      <div id="mode-select" class="btn-group">
+        <button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
+          <i class="icon-pencil icon-white"></i> Edit Model
+        </button>
+        <button class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
+          <i class="icon-eye-open icon-white"></i> Evaluate Formula
+        </button>
+      </div>
+      <div id="model-link">
+        <button class="btn btn-inverse" onclick="showLinkDialog()">Link to Current Model</button>
+      </div>
+      <div id="app-body">
+        <div class="panel tab-content">
+          <div id="edit-pane" class="tab-pane active">
+            <div class="var-count">
+              Number of propositional variables:
+              <div class="btn-group">
+                <button class="btn" onclick="setVarCount(1)">1</button>
+                <button class="btn active" onclick="setVarCount(2)">2</button>
+                <button class="btn" onclick="setVarCount(3)">3</button>
+                <button class="btn" onclick="setVarCount(4)">4</button>
+                <button class="btn" onclick="setVarCount(5)">5</button>
               </div>
-              <div class="alert alert-info">
-                <div class="selected-node-id">No state selected</div>
-                <table class="propvars inactive">
-                  <tbody>
-                    <tr class=""><td class="var-name">p:</td><td class="var-value"><div class="btn-group">
-                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(0,true)">True</button>
-                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(0,false)">False</button>
-                    </div></td></tr>
-                    <tr class=""><td class="var-name">q:</td><td class="var-value"><div class="btn-group">
-                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(1,true)">True</button>
-                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(1,false)">False</button>
-                    </div></td></tr>
-                    <tr class="inactive"><td class="var-name">r:</td><td class="var-value"><div class="btn-group">
-                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(2,true)">True</button>
-                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(2,false)">False</button>
-                    </div></td></tr>
-                    <tr class="inactive"><td class="var-name">s:</td><td class="var-value"><div class="btn-group">
-                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(3,true)">True</button>
-                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(3,false)">False</button>
-                    </div></td></tr>
-                    <tr class="inactive"><td class="var-name">t:</td><td class="var-value"><div class="btn-group">
-                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)">True</button>
-                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)">False</button>
-                    </div></td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <div class="instructions">
+            </div>
+            <div class="alert alert-info">
+              <div class="selected-node-id">No state selected</div>
+              <table class="propvars inactive">
+                <tbody>
+                  <tr class="">
+                    <td class="var-name">p:</td>
+                    <td class="var-value">
+                      <div class="btn-group">
+                        <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(0,true)">True</button>
+                        <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(0,false)">False</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="">
+                    <td class="var-name">q:</td>
+                    <td class="var-value">
+                      <div class="btn-group">
+                        <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(1,true)">True</button>
+                        <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(1,false)">False</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="inactive">
+                    <td class="var-name">r:</td>
+                    <td class="var-value">
+                      <div class="btn-group">
+                        <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(2,true)">True</button>
+                        <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(2,false)">False</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="inactive">
+                    <td class="var-name">s:</td>
+                    <td class="var-value">
+                      <div class="btn-group">
+                        <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(3,true)">True</button>
+                        <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(3,false)">False</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr class="inactive">
+                    <td class="var-name">t:</td>
+                    <td class="var-value">
+                      <div class="btn-group">
+                        <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)">True</button>
+                        <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)">False</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="alert-info alert"> <!-- This is the "select arrow type" section -->
+              <tbody>
+                <tr class="">
+                  <td class="var-name">Arrow Type:</td>
+                  <td class="var-value">
+                    <div class="btn-group">
+                      <button id="btnArrowPreorder" class="active btn btn-small btn-info" onclick="setArrowType('preorder')">Preorder</button>
+                      <button id="btnArrowRelation" class="btn btn-small btn-secondary" onclick="setArrowType('relation')">Relation</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </div>
+            <!-- <div class="instructions">
                 <ul class="unstyled">
                   <li>Click in the open space to <strong>add a state</strong></li>
                   <li>Drag between states to <strong>add a transition</strong></li>
@@ -85,265 +126,401 @@
                     </ul>
                   </li>
                 </ul>
-              </div>
+              </div> -->
+          </div>
+          <div id="eval-pane" class="tab-pane">
+            <div class="eval-input">
+              Enter a formula:
+              <input type="text" placeholder="e.g., (p -> []p)">
+              <button class="btn btn-block" onclick="evaluateFormula()">Evaluate</button>
             </div>
-            <div id="eval-pane" class="tab-pane">
-              <div class="eval-input">
-                Enter a formula:
-                <input type="text" placeholder="e.g., (p -> []p)">
-                <button class="btn btn-block" onclick="evaluateFormula()">Evaluate</button>
-              </div>
-              <div class="eval-output inactive">
-              </div>
-              <div class="instructions">
-                <ul class="unstyled">
-                  <li>
-                    When entering a formula:
-                    <ul>
-                      <li>use <code>~A</code> for $\lnot{}A$</li>
-                      <li>use <code>[]A</code> for $\Box{}A$</li>
-                      <li>use <code>&lt;&gt;A</code> for $\Diamond{}A$</li>
-                      <li>use <code>(A &amp; B)</code> for $(A\land{}B)$</li>
-                      <li>use <code>(A | B)</code> for $(A\lor{}B)$</li>
-                      <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
-                      <li>use <code>(A &lt;-&gt; B)</code> for $(A\leftrightarrow{}B)$</li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
+            <div class="eval-output inactive">
+            </div>
+            <div class="instructions">
+              <ul class="unstyled">
+                <li>
+                  When entering a formula:
+                  <ul>
+                    <li>use <code>~A</code> for $\lnot{}A$</li>
+                    <li>use <code>[]A</code> for $\Box{}A$</li>
+                    <li>use <code>&lt;&gt;A</code> for $\Diamond{}A$</li>
+                    <li>use <code>(A &amp; B)</code> for $(A\land{}B)$</li>
+                    <li>use <code>(A | B)</code> for $(A\lor{}B)$</li>
+                    <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
+                    <li>use <code>(A &lt;-&gt; B)</code> for $(A\leftrightarrow{}B)$</li>
+                  </ul>
+                </li>
+              </ul>
             </div>
           </div>
-          <div class="graph"></div>
-          <div class="current-formula inactive"></div>
         </div>
-      </section>
-      <section id="whatis">
-        <h2>So what's modal logic, anyway?</h2>
-        <p>
-          <strong>Modal logic</strong> is a type of symbolic logic for capturing inferences about <strong>necessity</strong> and <strong>possibility</strong>.
-          As with other logical systems, the theory lies at the intersection of mathematics and philosophy, while important applications are found within computer science and linguistics.
-        </p>
-        <p>
-          This app is a graphical semantic calculator for a specific kind of modal logic, <strong>modal propositional logic</strong>, which extends propositional logic but lacks quantifiers (<abbr title="'for all', universal quantifier">&forall;</abbr> and <abbr title="'there exists', existential quantifier">&exist;</abbr>).
-          Let's take a whirlwind tour.
-        </p>
-        <h3>From propositional logic...</h3>
-        <p>
-          To start out, let's briefly recall the language and semantics of propositional logic, i.e., connectives and truth tables.<sup><abbr title="To keep things simple, we won't worry about syntactic matters like axiomatization and deduction here.">[1]</abbr></sup>
-          <br>The usual connectives are the following:
-        </p>
-        <table class="table table-striped connective-table">
-          <thead>
-            <tr><th>Symbol</th><th>Read as</th><th>Operation</th><th>Natural language example<sup><abbr title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup></th></tr>
-          </thead>
-          <tbody>
-            <tr><td>$\lnot$</td><td>'not'</td><td>negation</td><td>It is <strong>not</strong> raining.</td></tr>
-            <tr><td>$\land$</td><td>'and'</td><td>conjunction</td><td>It is snowing <strong>and</strong> it is cold.</td></tr>
-            <tr><td>$\lor$</td><td>'or'</td><td>disjunction</td><td>It is raining <strong>or</strong> it is cold.</td></tr>
-            <tr><td>$\rightarrow$</td><td>'if...(then)'</td><td>implication</td><td><strong>If</strong> it is snowing, (<strong>then</strong>) it is cold.</td></tr>
-            <tr><td>$\leftrightarrow$</td><td>'iff'</td><td>equivalence</td><td>3 &times; 2 = 6 <strong>if and only if</strong> 3 + 3 = 6.</td></tr>
-          </tbody>
-        </table>
-        <p>
-          A typical (long-form) truth table would look something like this (using 0 for false and 1 for true):
-        </p>
-        <table class="table table-striped truth-table">
-          <thead>
-            <tr><th>$p$</th><th>$q$</th><th>$(q\rightarrow{}p)$</th><th>$(p\rightarrow{}(q\rightarrow{}p))$</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>0</td><td>0</td><td>1</td><td>1</td></tr>
-            <tr><td>0</td><td>1</td><td>0</td><td>1</td></tr>
-            <tr><td>1</td><td>0</td><td>1</td><td>1</td></tr>
-            <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
-          </tbody>
-        </table>
-        <p>
-          So once we've fixed a truth value for each of the propositional variables, the truth value of any formula using those variables is deterministic.
-        </p>
-        <h3>...to modal propositional logic</h3>
-        <p>
-          Now, in modal logic, we add two new unary connectives to our familiar language:
-        </p>
-        <table class="table table-striped connective-table">
-          <thead>
-            <tr><th>Symbol</th><th>Read as</th><th>Operation</th><th>Natural language example<sup><abbr title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup></th></tr>
-          </thead>
-          <tbody>
-            <tr><td>$\Box$</td><td>'box'</td><td>necessity</td><td>It <strong>must</strong> be cold outside.</td></tr>
-            <tr><td>$\Diamond$</td><td>'diamond'</td><td>possibility</td><td>It <strong>may</strong> be snowing.</td></tr>
-          </tbody>
-        </table>
-        <p>
-          Semantically, these modal connectives are interpreted with respect to <strong>possible worlds</strong>.
-          We can conceive of possible worlds in various ways, depending on what we're interested in modelling.
-          On the one hand, possible worlds might be hypothetical 'alternate universes': there is the 'actual world', the way things really are at the present moment, as well as an infinity of other 'worlds' which differ in ways both subtle (such as a world where my pen is simply on the opposite side of my desk) and dramatic (such as a world in which dinosaurs still roam Earth in 2013 CE).
-          Alternatively, possible worlds might be the various states of a computer, a computer program, or another system which evolves over time.
-        </p>
-        <p>
-          Regardless, if we have a proposition $p$ and current world $w$:
-        </p>
-        <div class="well">
-          <ul>
-            <li>$\Box{}p$ holds ($p$ is <strong>necessary</strong>) just when $p$ is true in all worlds accessible from $w$</li>
-            <li>$\Diamond{}p$ holds ($p$ is <strong>possible</strong>) just when $p$ is true in at least one world accessible from $w$</li>
-          </ul>
-        </div>
-        <p>
-          What does it mean for a world to be 'accessible'? The clearest example is surely that of a computer: an 'accessible' state is simply a successor state, one that is immediately reachable from the current state.
-          As such, the set of all possible worlds isn't just an unstructured mess, but is ordered by an <strong>accessibility relation</strong> that says which worlds we can get to from which others.
-        </p>
-        <div class="example">
-          <p>
-            Let's illustrate this further with an example from linguistics.
-            When one speaks of what may or must be so, we can view this as talking about what is true in some or all possible worlds.
-            Yet we're seldom concerned with every single possible world at once: when conversing about the current weather, things like pens and dinosaurs are typically far from one's mind.
-            Rather, we're only concerned with a relevant subset of these possibilities&mdash;just those worlds which are accessible from the actual world via some implicit relation.
-          </p>
-          <p>
-            The English sentences below show three kinds of accessibility relations at work:
-          </p>
-          <table class="table table-striped relation-table">
-            <thead>
-              <tr><th>Example sentence</th><th>Modality type</th><th>Accessible worlds</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>It <strong>must</strong> have rained overnight.</td><td>epistemic</td><td>worlds consistent with one's knowledge</td></tr>
-              <tr><td>You <strong>must</strong> arrive before noon.</td><td>deontic</td><td>worlds consistent with one's obligations</td></tr>
-              <tr><td>A triangle <strong>must</strong> have three vertices.</td><td>alethic</td><td>worlds consistent with logic (= all worlds)</td></tr>
-            </tbody>
-          </table>
-          <p>
-            These sentences might be represented as $\Box{}p$, $\Box{}q$, and $\Box{}r$, but the box operator has a noticeably different interpretation in each case.
-          </p>
-          <p>
-            In the first case, we can imagine someone who, upon leaving their house in the morning, notices that the sidewalk is wet.
-            Based on this observation, they conclude that it has rained overnight.
-            Here, the worlds under consideration are just those which are consistent with the speaker's knowledge, in particular, their observation of the sidewalk.
-            Thus the box means something like, 'Given what is known, it must be the case that...'.
-            This 'knowledge-based' interpretation of the modal operators is known as <strong>epistemic</strong> modality.
-          </p>
-          <p>
-            The second sentence might be uttered by airport staff to inform a passenger of the time that their flight boards.
-            In this case, the relevant worlds are those consistent with the passenger's obligations, namely, to get to their airplane punctually.
-            The box here means, 'Given what is obligated, it must be the case that...'.
-            This 'obligation-based' interpretation of the modal operators is known as <strong>deontic</strong> modality.
-          </p>
-          <p>
-            Finally, suppose that we remove all restrictions and let the modal operators range over every single possible world at once.
-            But we've talked about the infinity of possible worlds&mdash;what could they possibly all have in common?
-            One thing only: logical consistency.
-            Under this so-called <strong>alethic</strong> modality, the box now means, 'It is logically necessary that...'.
-            This interpretation may not be commonplace in daily conversation, but is useful for discussing mathematics, as in the third sentence: by definition, a triangle has three vertices, otherwise it wouldn't be a triangle!
-          </p>
-        </div>
-        <p>
-          Conveniently, we can view possible world semantics as an extension of truth tables.
-          In propositional logic, we only had to fix a truth value for each propositional variable once, but in modal logic, each propositional variable can take a different truth value at each possible world.
-          Even when two worlds have the same truth assignment, formulas with $\Box$ or $\Diamond$ might have a different truth value in each world, since the worlds accessible from each may not be the same.
-          Thus we might say that each possible world "has its own truth table".
-          A complete assignment of truth values to each variable at each world is known as a <strong>valuation</strong>.
-        </p>
-        <p>
-          Altogether, a set of possible worlds, an accessibility relation, and a valuation form a semantic model for modal logic, known as a <strong>Kripke model</strong>.
-          A Kripke model can be visualized as a directed graph, where nodes represent worlds, the set of edges represents the accessibility relation, and the valuation is indicated by annotating each node with its truth assignment.
-        </p>
-        <div class="example">
-          <p>
-            As a culminating example, let's take a look at the following graph, which happens to be the initial model for the app:
-          </p>
-          <div class="well svg-well">
-            <svg class="static" width="350" height="50">
-              <defs>
-                <marker id="end-arrow" viewBox="0 -5 10 10" refX="6" markerWidth="3" markerHeight="3" orient="auto">
-                  <path d="M0,-5L10,0L0,5" fill="#000"></path>
-                </marker>
-              </defs>
-              <g>
-                <path class="link" marker-end="url(#end-arrow)" d="M37,30L158,30"></path>
-                <path class="link" marker-end="url(#end-arrow)" d="M187,30L308,30"></path>
-              </g>
-              <g>
-                <g transform="translate(25,30)">
-                  <circle class="node" r="12" style="fill: #1f77b4; stroke: #15537d;"></circle>
-                  <text x="0" y="4" class="id">0</text>
-                  <text x="-21" y="-20">&not;p, &not;q</text>
-                </g>
-                <g transform="translate(175,30)">
-                  <circle class="node reflexive" r="12" style="fill: #ff7f0e; stroke: #b25809;"></circle>
-                  <text x="0" y="4" class="id">1</text>
-                  <text x="-14" y="-20">p, &not;q</text>
-                </g>
-                <g transform="translate(325,30)">
-                  <circle class="node" r="12" style="fill: #2ca02c; stroke: #1e701e;"></circle>
-                  <text x="0" y="4" class="id">2</text>
-                  <text x="-17" y="-20">&not;p, q</text>
-                </g>
-              </g>
-            </svg>
-          </div>
-          <p>
-            Using the computer program metaphor, imagine a scenario where $p$ stands for 'the program is running' and $q$ stands for 'the program has terminated'.
-            Then state 0 of our model represents the state where the program is about to launch (neither running nor terminated), state 1 is the running (and non-terminated) state, and state 2 is the terminated (and no longer running) state.
-            As for the accessibility relation: from the ready-to-launch state, the only option is to transition to the running state; at the running state, the program can either continue to run (the reflexive edge is indicated by a bold circle) or terminate; and the terminated state is the end of the line, so to speak.
-          </p>
-          <p>
-            We can then evaluate formulas based on this model. For instance, $\Diamond(p\land\lnot{}q)$ says 'there is a transition to a running-and-not-terminated state (i.e., to state 1)', or more naturally, that the program is able to run (or keep running).
-            This formula is true at states 0 and 1 but false at state 2, which can be expressed in the following notation (the 'double turnstile' $\models$ can be read as 'satisfies' or 'makes...true'):
-          </p>
-          <div class="well wffs">
-            <div>$w_0\models\Diamond(p\land\lnot{}q)$</div>
-            <div>$w_1\models\Diamond(p\land\lnot{}q)$</div>
-            <div>$w_2\not\models\Diamond(p\land\lnot{}q)$</div>
-          </div>
-          <p>
-            To see this in action, try using the app to evaluate <code>&lt;&gt;(p &amp; ~q)</code> at each state!
-          </p>
-        </div>
-        <h2>Hungry for more?</h2>
-        <p>
-          This whirlwind tour has only scratched the surface of modal logic&mdash;if you're curious to learn more, here are a few useful resources:
-        </p>
-        <ul class="unstyled">
-          <li>
-            <a href="http://www.logicinaction.org/" target="_blank">Logic in Action</a>
-            <p class="indent">A freely-available, broad-scope introduction to symbolic logic. Chapters 5-7 deal with modal logic and some of its applications.</p>
-          </li>
-          <li>
-            <a href="http://www.cs.cmu.edu/~tom7/talks/modal-logic6.swf" target="_blank">What is modal logic and what is it good for?</a>
-            <p class="indent">A lively Flash presentation aimed at computer scientists.</p>
-          </li>
-          <li>
-            <a href="http://en.wikipedia.org/wiki/Modal_logic" target="_blank">Modal Logic @ Wikipedia</a>
-            <p></p>
-          </li>
-          <li>
-            <a href="http://plato.stanford.edu/entries/logic-modal/" target="_blank">Modal Logic @ Stanford Encyclopedia of Philosophy</a>
-            <p></p>
-          </li>
+        <div class="graph"></div>
+        <div class="current-formula inactive"></div>
+      </div>
+    </section>
+    <section id="whatis">
+      <h2>So what's modal logic, anyway?</h2>
+      <p>
+        <strong>Modal logic</strong> is a type of symbolic logic for capturing inferences about
+        <strong>necessity</strong> and <strong>possibility</strong>.
+        As with other logical systems, the theory lies at the intersection of mathematics and philosophy, while
+        important applications are found within computer science and linguistics.
+      </p>
+      <p>
+        This app is a graphical semantic calculator for a specific kind of modal logic, <strong>modal propositional
+          logic</strong>, which extends propositional logic but lacks quantifiers (<abbr
+          title="'for all', universal quantifier">&forall;</abbr> and <abbr
+          title="'there exists', existential quantifier">&exist;</abbr>).
+        Let's take a whirlwind tour.
+      </p>
+      <h3>From propositional logic...</h3>
+      <p>
+        To start out, let's briefly recall the language and semantics of propositional logic, i.e., connectives and
+        truth tables.<sup><abbr
+            title="To keep things simple, we won't worry about syntactic matters like axiomatization and deduction here.">[1]</abbr></sup>
+        <br>The usual connectives are the following:
+      </p>
+      <table class="table table-striped connective-table">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Read as</th>
+            <th>Operation</th>
+            <th>Natural language example<sup><abbr
+                  title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$\lnot$</td>
+            <td>'not'</td>
+            <td>negation</td>
+            <td>It is <strong>not</strong> raining.</td>
+          </tr>
+          <tr>
+            <td>$\land$</td>
+            <td>'and'</td>
+            <td>conjunction</td>
+            <td>It is snowing <strong>and</strong> it is cold.</td>
+          </tr>
+          <tr>
+            <td>$\lor$</td>
+            <td>'or'</td>
+            <td>disjunction</td>
+            <td>It is raining <strong>or</strong> it is cold.</td>
+          </tr>
+          <tr>
+            <td>$\rightarrow$</td>
+            <td>'if...(then)'</td>
+            <td>implication</td>
+            <td><strong>If</strong> it is snowing, (<strong>then</strong>) it is cold.</td>
+          </tr>
+          <tr>
+            <td>$\leftrightarrow$</td>
+            <td>'iff'</td>
+            <td>equivalence</td>
+            <td>3 &times; 2 = 6 <strong>if and only if</strong> 3 + 3 = 6.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        A typical (long-form) truth table would look something like this (using 0 for false and 1 for true):
+      </p>
+      <table class="table table-striped truth-table">
+        <thead>
+          <tr>
+            <th>$p$</th>
+            <th>$q$</th>
+            <th>$(q\rightarrow{}p)$</th>
+            <th>$(p\rightarrow{}(q\rightarrow{}p))$</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>0</td>
+            <td>1</td>
+            <td>0</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>0</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+          <tr>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+            <td>1</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        So once we've fixed a truth value for each of the propositional variables, the truth value of any formula using
+        those variables is deterministic.
+      </p>
+      <h3>...to modal propositional logic</h3>
+      <p>
+        Now, in modal logic, we add two new unary connectives to our familiar language:
+      </p>
+      <table class="table table-striped connective-table">
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Read as</th>
+            <th>Operation</th>
+            <th>Natural language example<sup><abbr
+                  title="The examples here are purely for illustration. In a natural language such as English, 'if' often does not correspond to logical implication; likewise for the other connectives.">[2]</abbr></sup>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>$\Box$</td>
+            <td>'box'</td>
+            <td>necessity</td>
+            <td>It <strong>must</strong> be cold outside.</td>
+          </tr>
+          <tr>
+            <td>$\Diamond$</td>
+            <td>'diamond'</td>
+            <td>possibility</td>
+            <td>It <strong>may</strong> be snowing.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>
+        Semantically, these modal connectives are interpreted with respect to <strong>possible worlds</strong>.
+        We can conceive of possible worlds in various ways, depending on what we're interested in modelling.
+        On the one hand, possible worlds might be hypothetical 'alternate universes': there is the 'actual world', the
+        way things really are at the present moment, as well as an infinity of other 'worlds' which differ in ways both
+        subtle (such as a world where my pen is simply on the opposite side of my desk) and dramatic (such as a world in
+        which dinosaurs still roam Earth in 2013 CE).
+        Alternatively, possible worlds might be the various states of a computer, a computer program, or another system
+        which evolves over time.
+      </p>
+      <p>
+        Regardless, if we have a proposition $p$ and current world $w$:
+      </p>
+      <div class="well">
+        <ul>
+          <li>$\Box{}p$ holds ($p$ is <strong>necessary</strong>) just when $p$ is true in all worlds accessible from
+            $w$</li>
+          <li>$\Diamond{}p$ holds ($p$ is <strong>possible</strong>) just when $p$ is true in at least one world
+            accessible from $w$</li>
         </ul>
-      </section>
-      <footer>
-        Modal Logic Playground is a creation of <a href="https://github.com/rkirsling">Ross Kirsling</a>, released under the <a href="http://opensource.org/licenses/mit-license.php">MIT License</a>.
-      </footer>
-    </div>
-    <div class="modal-backdrop fade inactive" onclick="hideLinkDialog()"></div>
-    <div id="link-dialog" class="modal fade inactive">
-      <div class="modal-header">
-        <button type="button" class="close" onclick="hideLinkDialog()">&times;</button>
-        <h3>Link to Model</h3>
       </div>
-      <div class="modal-body">
-        <p>Copy the following URL to save your model for later or to share it with others:</p>
-        <input type="text" value="" readonly onclick="this.select()">
+      <p>
+        What does it mean for a world to be 'accessible'? The clearest example is surely that of a computer: an
+        'accessible' state is simply a successor state, one that is immediately reachable from the current state.
+        As such, the set of all possible worlds isn't just an unstructured mess, but is ordered by an
+        <strong>accessibility relation</strong> that says which worlds we can get to from which others.
+      </p>
+      <div class="example">
+        <p>
+          Let's illustrate this further with an example from linguistics.
+          When one speaks of what may or must be so, we can view this as talking about what is true in some or all
+          possible worlds.
+          Yet we're seldom concerned with every single possible world at once: when conversing about the current
+          weather, things like pens and dinosaurs are typically far from one's mind.
+          Rather, we're only concerned with a relevant subset of these possibilities&mdash;just those worlds which are
+          accessible from the actual world via some implicit relation.
+        </p>
+        <p>
+          The English sentences below show three kinds of accessibility relations at work:
+        </p>
+        <table class="table table-striped relation-table">
+          <thead>
+            <tr>
+              <th>Example sentence</th>
+              <th>Modality type</th>
+              <th>Accessible worlds</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>It <strong>must</strong> have rained overnight.</td>
+              <td>epistemic</td>
+              <td>worlds consistent with one's knowledge</td>
+            </tr>
+            <tr>
+              <td>You <strong>must</strong> arrive before noon.</td>
+              <td>deontic</td>
+              <td>worlds consistent with one's obligations</td>
+            </tr>
+            <tr>
+              <td>A triangle <strong>must</strong> have three vertices.</td>
+              <td>alethic</td>
+              <td>worlds consistent with logic (= all worlds)</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          These sentences might be represented as $\Box{}p$, $\Box{}q$, and $\Box{}r$, but the box operator has a
+          noticeably different interpretation in each case.
+        </p>
+        <p>
+          In the first case, we can imagine someone who, upon leaving their house in the morning, notices that the
+          sidewalk is wet.
+          Based on this observation, they conclude that it has rained overnight.
+          Here, the worlds under consideration are just those which are consistent with the speaker's knowledge, in
+          particular, their observation of the sidewalk.
+          Thus the box means something like, 'Given what is known, it must be the case that...'.
+          This 'knowledge-based' interpretation of the modal operators is known as <strong>epistemic</strong> modality.
+        </p>
+        <p>
+          The second sentence might be uttered by airport staff to inform a passenger of the time that their flight
+          boards.
+          In this case, the relevant worlds are those consistent with the passenger's obligations, namely, to get to
+          their airplane punctually.
+          The box here means, 'Given what is obligated, it must be the case that...'.
+          This 'obligation-based' interpretation of the modal operators is known as <strong>deontic</strong> modality.
+        </p>
+        <p>
+          Finally, suppose that we remove all restrictions and let the modal operators range over every single possible
+          world at once.
+          But we've talked about the infinity of possible worlds&mdash;what could they possibly all have in common?
+          One thing only: logical consistency.
+          Under this so-called <strong>alethic</strong> modality, the box now means, 'It is logically necessary
+          that...'.
+          This interpretation may not be commonplace in daily conversation, but is useful for discussing mathematics, as
+          in the third sentence: by definition, a triangle has three vertices, otherwise it wouldn't be a triangle!
+        </p>
       </div>
+      <p>
+        Conveniently, we can view possible world semantics as an extension of truth tables.
+        In propositional logic, we only had to fix a truth value for each propositional variable once, but in modal
+        logic, each propositional variable can take a different truth value at each possible world.
+        Even when two worlds have the same truth assignment, formulas with $\Box$ or $\Diamond$ might have a different
+        truth value in each world, since the worlds accessible from each may not be the same.
+        Thus we might say that each possible world "has its own truth table".
+        A complete assignment of truth values to each variable at each world is known as a <strong>valuation</strong>.
+      </p>
+      <p>
+        Altogether, a set of possible worlds, an accessibility relation, and a valuation form a semantic model for modal
+        logic, known as a <strong>Kripke model</strong>.
+        A Kripke model can be visualized as a directed graph, where nodes represent worlds, the set of edges represents
+        the accessibility relation, and the valuation is indicated by annotating each node with its truth assignment.
+      </p>
+      <div class="example">
+        <p>
+          As a culminating example, let's take a look at the following graph, which happens to be the initial model for
+          the app:
+        </p>
+        <div class="well svg-well">
+          <svg class="static" width="350" height="50">
+            <defs>
+              <marker id="end-arrow" viewBox="0 -5 10 10" refX="6" markerWidth="3" markerHeight="3" orient="auto">
+                <path d="M0,-5L10,0L0,5" fill="#000"></path>
+              </marker>
+            </defs>
+            <g>
+              <path class="link" marker-end="url(#end-arrow)" d="M37,30L158,30"></path>
+              <path class="link" marker-end="url(#end-arrow)" d="M187,30L308,30"></path>
+            </g>
+            <g>
+              <g transform="translate(25,30)">
+                <circle class="node" r="12" style="fill: #1f77b4; stroke: #15537d;"></circle>
+                <text x="0" y="4" class="id">0</text>
+                <text x="-21" y="-20">&not;p, &not;q</text>
+              </g>
+              <g transform="translate(175,30)">
+                <circle class="node reflexive" r="12" style="fill: #ff7f0e; stroke: #b25809;"></circle>
+                <text x="0" y="4" class="id">1</text>
+                <text x="-14" y="-20">p, &not;q</text>
+              </g>
+              <g transform="translate(325,30)">
+                <circle class="node" r="12" style="fill: #2ca02c; stroke: #1e701e;"></circle>
+                <text x="0" y="4" class="id">2</text>
+                <text x="-17" y="-20">&not;p, q</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <p>
+          Using the computer program metaphor, imagine a scenario where $p$ stands for 'the program is running' and $q$
+          stands for 'the program has terminated'.
+          Then state 0 of our model represents the state where the program is about to launch (neither running nor
+          terminated), state 1 is the running (and non-terminated) state, and state 2 is the terminated (and no longer
+          running) state.
+          As for the accessibility relation: from the ready-to-launch state, the only option is to transition to the
+          running state; at the running state, the program can either continue to run (the reflexive edge is indicated
+          by a bold circle) or terminate; and the terminated state is the end of the line, so to speak.
+        </p>
+        <p>
+          We can then evaluate formulas based on this model. For instance, $\Diamond(p\land\lnot{}q)$ says 'there is a
+          transition to a running-and-not-terminated state (i.e., to state 1)', or more naturally, that the program is
+          able to run (or keep running).
+          This formula is true at states 0 and 1 but false at state 2, which can be expressed in the following notation
+          (the 'double turnstile' $\models$ can be read as 'satisfies' or 'makes...true'):
+        </p>
+        <div class="well wffs">
+          <div>$w_0\models\Diamond(p\land\lnot{}q)$</div>
+          <div>$w_1\models\Diamond(p\land\lnot{}q)$</div>
+          <div>$w_2\not\models\Diamond(p\land\lnot{}q)$</div>
+        </div>
+        <p>
+          To see this in action, try using the app to evaluate <code>&lt;&gt;(p &amp; ~q)</code> at each state!
+        </p>
+      </div>
+      <h2>Hungry for more?</h2>
+      <p>
+        This whirlwind tour has only scratched the surface of modal logic&mdash;if you're curious to learn more, here
+        are a few useful resources:
+      </p>
+      <ul class="unstyled">
+        <li>
+          <a href="http://www.logicinaction.org/" target="_blank">Logic in Action</a>
+          <p class="indent">A freely-available, broad-scope introduction to symbolic logic. Chapters 5-7 deal with modal
+            logic and some of its applications.</p>
+        </li>
+        <li>
+          <a href="http://www.cs.cmu.edu/~tom7/talks/modal-logic6.swf" target="_blank">What is modal logic and what is
+            it good for?</a>
+          <p class="indent">A lively Flash presentation aimed at computer scientists.</p>
+        </li>
+        <li>
+          <a href="http://en.wikipedia.org/wiki/Modal_logic" target="_blank">Modal Logic @ Wikipedia</a>
+          <p></p>
+        </li>
+        <li>
+          <a href="http://plato.stanford.edu/entries/logic-modal/" target="_blank">Modal Logic @ Stanford Encyclopedia
+            of Philosophy</a>
+          <p></p>
+        </li>
+      </ul>
+    </section>
+    <footer>
+      Modal Logic Playground is a creation of <a href="https://github.com/rkirsling">Ross Kirsling</a>, released under
+      the <a href="http://opensource.org/licenses/mit-license.php">MIT License</a>.
+    </footer>
+  </div>
+  <div class="modal-backdrop fade inactive" onclick="hideLinkDialog()"></div>
+  <div id="link-dialog" class="modal fade inactive">
+    <div class="modal-header">
+      <button type="button" class="close" onclick="hideLinkDialog()">&times;</button>
+      <h3>Link to Model</h3>
     </div>
-  </body>
+    <div class="modal-body">
+      <p>Copy the following URL to save your model for later or to share it with others:</p>
+      <input type="text" value="" readonly onclick="this.select()">
+    </div>
+  </div>
+</body>
 
-  <script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$']] } });</script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML"></script>
-  <script src="lib/d3.min.js"></script>
-  <script src="lib/formula-parser.min.js"></script>
-  <script src="js/MPL.js"></script>
-  <script src="js/app.js"></script>
+<script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$']] } });</script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML"></script>
+<script src="lib/d3.min.js"></script>
+<script src="lib/formula-parser.min.js"></script>
+<script src="js/MPL.js"></script>
+<script src="js/app.js"></script>
+
 </html>

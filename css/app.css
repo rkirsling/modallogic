@@ -353,3 +353,11 @@ footer {
   background-color: #fff;
   cursor: default;
 }
+
+.dashed{
+   stroke-dasharray: 5,5; 
+}
+
+.solid{
+  stroke-dasharray: none;
+}
