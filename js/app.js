@@ -331,8 +331,8 @@ function restart() {
   path = path.data(links);
 
   // update existing links
-  path.classed('selected', function (d) { return d === selected_link; })
-    .attr('class', function(d){return d.type==='P' ? 'link dashed' : 'link solid'})
+  path.attr('class', function(d){return d.type==='P' ? 'link dashed' : 'link solid'})
+    .classed('selected', function (d) { return d === selected_link; })
     .style('marker-start', function (d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function (d) { return d.right ? 'url(#end-arrow)' : ''; });
 
@@ -610,6 +610,12 @@ function keydown() {
     //   }
     //   restart();
     //   break;
+    case 80: //P
+      if(selected_link){
+        selected_link.type='P'
+        restart()
+      }
+      break;
     case 82: // R
       if (selected_node) {
         // toggle node reflexivity
@@ -620,7 +626,8 @@ function keydown() {
           selected_node.reflexive = true;
           model.addTransition(selected_node.id, selected_node.id);
         }
-      } //else if (selected_link) {
+      } else if (selected_link) {
+        selected_link.type='R'
       //   var sourceId = selected_link.source.id,
       //     targetId = selected_link.target.id;
       //   // set link direction to right only
@@ -632,7 +639,7 @@ function keydown() {
       //     selected_link.right = true;
       //     model.addTransition(sourceId, targetId);
       //   }
-      // }
+      }
       restart();
       break;
   }

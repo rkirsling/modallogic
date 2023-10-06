@@ -182,7 +182,8 @@ svg.edit:not(.active):not(.ctrl) path.link {
 }
 
 path.link.selected {
-  stroke-dasharray: 10,2;
+  /* stroke-dasharray: 10,2; */
+  stroke:#2ca02c
 }
 
 path.link.dragline {
