@@ -61,14 +61,14 @@ nodes.forEach(function (source) {
     var target = nodes.filter(function (node) { return node.id === targetId; })[0];
 
     if (sourceId < targetId) {
-      links.push({ source: source, target: target, left: false, right: true });
+      links.push({ source: source, target: target, left: false, right: true, type:'P' });
       return;
     }
 
     var link = links.filter(function (l) { return (l.source === target && l.target === source); })[0];
 
     if (link) link.left = true;
-    else links.push({ source: target, target: source, left: true, right: false });
+    else links.push({ source: target, target: source, left: true, right: false, type:'R' });
   });
 });
 
@@ -332,6 +332,7 @@ function restart() {
 
   // update existing links
   path.classed('selected', function (d) { return d === selected_link; })
+    .attr('class', function(d){return d.type==='P' ? 'link dashed' : 'link solid'})
     .style('marker-start', function (d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function (d) { return d.right ? 'url(#end-arrow)' : ''; });
 
@@ -439,7 +440,7 @@ function restart() {
       if (link) {
         link[direction] = true;
       } else {
-        link = { source: source, target: target, left: false, right: false };
+        link = { source: source, target: target, left: false, right: false, type: d3.select('#btnArrowPreorder').classed('active') ? 'P' : 'O'};
         link[direction] = true;
         links.push(link);
       }
@@ -576,38 +577,39 @@ function keydown() {
       setSelectedNode(null);
       restart();
       break;
-    case 66: // B
-      if (selected_link) {
-        var sourceId = selected_link.source.id,
-          targetId = selected_link.target.id;
-        // set link direction to both left and right
-        if (!selected_link.left) {
-          selected_link.left = true;
-          model.addTransition(targetId, sourceId);
-        }
-        if (!selected_link.right) {
-          selected_link.right = true;
-          model.addTransition(sourceId, targetId);
-        }
-      }
-      restart();
-      break;
-    case 76: // L
-      if (selected_link) {
-        var sourceId = selected_link.source.id,
-          targetId = selected_link.target.id;
-        // set link direction to left only
-        if (!selected_link.left) {
-          selected_link.left = true;
-          model.addTransition(targetId, sourceId);
-        }
-        if (selected_link.right) {
-          selected_link.right = false;
-          model.removeTransition(sourceId, targetId);
-        }
-      }
-      restart();
-      break;
+    // REMOVE THE BI-DIRECTIONAL LINK KEYS
+    // case 66: // B
+    //   if (selected_link) {
+    //     var sourceId = selected_link.source.id,
+    //       targetId = selected_link.target.id;
+    //     // set link direction to both left and right
+    //     if (!selected_link.left) {
+    //       selected_link.left = true;
+    //       model.addTransition(targetId, sourceId);
+    //     }
+    //     if (!selected_link.right) {
+    //       selected_link.right = true;
+    //       model.addTransition(sourceId, targetId);
+    //     }
+    //   }
+    //   restart();
+    //   break;
+    // case 76: // L
+    //   if (selected_link) {
+    //     var sourceId = selected_link.source.id,
+    //       targetId = selected_link.target.id;
+    //     // set link direction to left only
+    //     if (!selected_link.left) {
+    //       selected_link.left = true;
+    //       model.addTransition(targetId, sourceId);
+    //     }
+    //     if (selected_link.right) {
+    //       selected_link.right = false;
+    //       model.removeTransition(sourceId, targetId);
+    //     }
+    //   }
+    //   restart();
+    //   break;
     case 82: // R
       if (selected_node) {
         // toggle node reflexivity
@@ -618,19 +620,19 @@ function keydown() {
           selected_node.reflexive = true;
           model.addTransition(selected_node.id, selected_node.id);
         }
-      } else if (selected_link) {
-        var sourceId = selected_link.source.id,
-          targetId = selected_link.target.id;
-        // set link direction to right only
-        if (selected_link.left) {
-          selected_link.left = false;
-          model.removeTransition(targetId, sourceId);
-        }
-        if (!selected_link.right) {
-          selected_link.right = true;
-          model.addTransition(sourceId, targetId);
-        }
-      }
+      } //else if (selected_link) {
+      //   var sourceId = selected_link.source.id,
+      //     targetId = selected_link.target.id;
+      //   // set link direction to right only
+      //   if (selected_link.left) {
+      //     selected_link.left = false;
+      //     model.removeTransition(targetId, sourceId);
+      //   }
+      //   if (!selected_link.right) {
+      //     selected_link.right = true;
+      //     model.addTransition(sourceId, targetId);
+      //   }
+      // }
       restart();
       break;
   }
