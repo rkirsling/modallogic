@@ -62,14 +62,14 @@ nodes.forEach(function (source) {
     var target = nodes.filter(function (node) { return node.id === targetId; })[0];
 
     if (sourceId < targetId) {
-      links.push({ source: source, target: target, left: false, right: true, type:'P' });
+      links.push({ source: source, target: target, left: false, right: true, type: 'P' });
       return;
     }
 
     var link = links.filter(function (l) { return (l.source === target && l.target === source); })[0];
 
     if (link) link.left = true;
-    else links.push({ source: target, target: source, left: true, right: false, type:'R' });
+    else links.push({ source: target, target: source, left: true, right: false, type: 'R' });
   });
 });
 
@@ -332,7 +332,7 @@ function restart() {
   path = path.data(links);
 
   // update existing links
-  path.attr('class', function(d){return d.type==='P' ? 'link dashed' : 'link solid'})
+  path.attr('class', function (d) { return d.type === 'P' ? 'link dashed' : 'link solid' })
     .classed('selected', function (d) { return d === selected_link; })
     .style('marker-start', function (d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function (d) { return d.right ? 'url(#end-arrow)' : ''; });
@@ -340,7 +340,7 @@ function restart() {
 
   // add new links
   path.enter().append('svg:path')
-    .attr('class', function(d){return d3.select('#btnArrowPreorder').classed('active') ? 'link dashed' : 'link solid'})
+    .attr('class', function (d) { return d3.select('#btnArrowPreorder').classed('active') ? 'link dashed' : 'link solid' })
     .classed('selected', function (d) { return d === selected_link; })
     .style('marker-start', function (d) { return d.left ? 'url(#start-arrow)' : ''; })
     .style('marker-end', function (d) { return d.right ? 'url(#end-arrow)' : ''; })
@@ -419,7 +419,7 @@ function restart() {
       d3.select(this).attr('transform', '');
 
       // add transition to model
-      model.addTransition(mousedown_node.id, mouseup_node.id,d3.select('#btnArrowPreorder').classed('active') ? 'preorders' : 'relations');
+      model.addTransition(mousedown_node.id, mouseup_node.id, d3.select('#btnArrowPreorder').classed('active') ? 'preorders' : 'relations');
 
       // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
@@ -441,7 +441,7 @@ function restart() {
       if (link) {
         link[direction] = true;
       } else {
-        link = { source: source, target: target, left: false, right: false, type: d3.select('#btnArrowPreorder').classed('active') ? 'P' : 'O'};
+        link = { source: source, target: target, left: false, right: false, type: d3.select('#btnArrowPreorder').classed('active') ? 'P' : 'O' };
         link[direction] = true;
         links.push(link);
       }
@@ -531,10 +531,10 @@ function removeLinkFromModel(link) {
     targetId = link.target.id;
 
   // remove leftward transition
-  if (link.left) model.removeTransition(targetId, sourceId,link.type==='P' ? 'preorders' : 'relations');
+  if (link.left) model.removeTransition(targetId, sourceId, link.type === 'P' ? 'preorders' : 'relations');
 
   // remove rightward transition
-  if (link.right) model.removeTransition(sourceId, targetId,d3.select(link).classed('dashed') ? 'preorders' : 'relations');
+  if (link.right) model.removeTransition(sourceId, targetId, d3.select(link).classed('dashed') ? 'preorders' : 'relations');
 }
 
 function spliceLinksForNode(node) {
@@ -612,8 +612,8 @@ function keydown() {
     //   restart();
     //   break;
     case 80: //P
-      if(selected_link){
-        selected_link.type='P'
+      if (selected_link) {
+        selected_link.type = 'P'
         restart()
       }
       break;
@@ -622,26 +622,26 @@ function keydown() {
         // toggle node reflexivity
         if (selected_node.reflexive) {
           selected_node.reflexive = false;
-          model.removeTransition(selected_node.id, selected_node.id,'preorders');
-          model.removeTransition(selected_node.id, selected_node.id,'relations');
+          model.removeTransition(selected_node.id, selected_node.id, 'preorders');
+          model.removeTransition(selected_node.id, selected_node.id, 'relations');
         } else {
           selected_node.reflexive = true;
-          model.addTransition(selected_node.id, selected_node.id,'preorders');
-          model.addTransition(selected_node.id, selected_node.id,'relations');
+          model.addTransition(selected_node.id, selected_node.id, 'preorders');
+          model.addTransition(selected_node.id, selected_node.id, 'relations');
         }
       } else if (selected_link) {
-        selected_link.type='R'
-      //   var sourceId = selected_link.source.id,
-      //     targetId = selected_link.target.id;
-      //   // set link direction to right only
-      //   if (selected_link.left) {
-      //     selected_link.left = false;
-      //     model.removeTransition(targetId, sourceId);
-      //   }
-      //   if (!selected_link.right) {
-      //     selected_link.right = true;
-      //     model.addTransition(sourceId, targetId);
-      //   }
+        selected_link.type = 'R'
+        //   var sourceId = selected_link.source.id,
+        //     targetId = selected_link.target.id;
+        //   // set link direction to right only
+        //   if (selected_link.left) {
+        //     selected_link.left = false;
+        //     model.removeTransition(targetId, sourceId);
+        //   }
+        //   if (!selected_link.right) {
+        //     selected_link.right = true;
+        //     model.addTransition(sourceId, targetId);
+        //   }
       }
       restart();
       break;

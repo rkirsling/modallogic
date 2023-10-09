@@ -221,8 +221,8 @@ var MPL = (function (FormulaParser) {
 
       _states[state] = null;
       _states.forEach(function (source, index) {
-        if (source) self.removeTransition(index, state,'preorders');
-        if (source) self.removeTransition(index, state,'relations');
+        if (source) self.removeTransition(index, state, 'preorders');
+        if (source) self.removeTransition(index, state, 'relations');
       });
     };
 
@@ -294,7 +294,7 @@ var MPL = (function (FormulaParser) {
 
         var assignment = {};
         stateProperties[0].forEach(function (propvar) { assignment[propvar] = true; });
-        _states.push({ assignment: assignment, preorders: [], relations:[] });
+        _states.push({ assignment: assignment, preorders: [], relations: [] });
 
         var successors = stateProperties[1].map(function (succState) { return +succState; });
         successorLists.push(successors);
@@ -305,7 +305,7 @@ var MPL = (function (FormulaParser) {
         if (!successors) return;
 
         successors.forEach(function (target) {
-          self.addTransition(source, target,'preorders');
+          self.addTransition(source, target, 'preorders');
         });
       });
     };
