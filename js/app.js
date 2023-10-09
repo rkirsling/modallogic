@@ -204,6 +204,7 @@ function evaluateFormula() {
   nodes.forEach(function (node, index) {
     var id = node.id,
       truthVal = MPL.truth(model, id, wff);
+    console.log("Testing node "+index)
 
     if (truthVal) trueStates.push(id);
     else falseStates.push(id);
@@ -534,7 +535,7 @@ function removeLinkFromModel(link) {
   if (link.left) model.removeTransition(targetId, sourceId, link.type === 'P' ? 'preorders' : 'relations');
 
   // remove rightward transition
-  if (link.right) model.removeTransition(sourceId, targetId, d3.select(link).classed('dashed') ? 'preorders' : 'relations');
+  if (link.right) model.removeTransition(sourceId, targetId,link.type === 'P' ? 'preorders' : 'relations');
 }
 
 function spliceLinksForNode(node) {

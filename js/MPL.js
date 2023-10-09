@@ -328,10 +328,26 @@ var MPL = (function (FormulaParser) {
       return (!_truth(model, state, json.impl[0]) || _truth(model, state, json.impl[1]));
     else if (json.equi)
       return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
-    else if (json.nec)
-      return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
-    else if (json.poss)
-      return model.getSuccessorsOf(state).some(function (succState) { return _truth(model, succState, json.poss); });
+    else if (json.nec) {
+      return model.getPreordersOf(state).every(world1 => {
+        console.log('preorder:' + world1)
+        return model.getRelationsOf(world1).every(world2 => {
+          console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.nec))
+          return _truth(model, world2, json.nec)
+        })
+      });
+    }
+    // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
+    else if (json.poss) {
+      return model.getPreordersOf(state).some(world1 => {
+        console.log('preorder:' + world1)
+        return model.getRelationsOf(world1).some(world2 => {
+          console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.poss))
+          return _truth(model, world2, json.poss)
+        })
+      });
+    }
+    // return model.getSuccessorsOf(state).some(function (succState) { return _truth(model, succState, json.poss); });
     else
       throw new Error('Invalid formula!');
   }
