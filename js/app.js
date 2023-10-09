@@ -19,7 +19,8 @@ var propvars = ['p', 'q', 'r', 's', 't'],
   varCount = 2;
 
 var model = new MPL.Model(),
-  modelString = 'ApS1;ApS1,2;AqS;'; //This is where the initial model is loaded in
+  // modelString = 'ApqS1;ApS1,2;AqS;'; //This is where the initial model is loaded in
+  modelString = 'AS1,2;AS;AS;';
 
 var modelParam = window.location.search.match(/\?model=(.*)/);
 if (modelParam) modelString = modelParam[1];
@@ -50,7 +51,7 @@ states.forEach(function (state) {
 // --> links setup
 nodes.forEach(function (source) {
   var sourceId = source.id,
-    successors = model.getSuccessorsOf(sourceId);
+    successors = model.getPreordersOf(sourceId);
 
   successors.forEach(function (targetId) {
     if (sourceId === targetId) {
@@ -418,7 +419,7 @@ function restart() {
       d3.select(this).attr('transform', '');
 
       // add transition to model
-      model.addTransition(mousedown_node.id, mouseup_node.id);
+      model.addTransition(mousedown_node.id, mouseup_node.id,d3.select('#btnArrowPreorder').classed('active') ? 'preorders' : 'relations');
 
       // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
@@ -530,10 +531,10 @@ function removeLinkFromModel(link) {
     targetId = link.target.id;
 
   // remove leftward transition
-  if (link.left) model.removeTransition(targetId, sourceId);
+  if (link.left) model.removeTransition(targetId, sourceId,link.type==='P' ? 'preorders' : 'relations');
 
   // remove rightward transition
-  if (link.right) model.removeTransition(sourceId, targetId);
+  if (link.right) model.removeTransition(sourceId, targetId,d3.select(link).classed('dashed') ? 'preorders' : 'relations');
 }
 
 function spliceLinksForNode(node) {
@@ -621,10 +622,12 @@ function keydown() {
         // toggle node reflexivity
         if (selected_node.reflexive) {
           selected_node.reflexive = false;
-          model.removeTransition(selected_node.id, selected_node.id);
+          model.removeTransition(selected_node.id, selected_node.id,'preorders');
+          model.removeTransition(selected_node.id, selected_node.id,'relations');
         } else {
           selected_node.reflexive = true;
-          model.addTransition(selected_node.id, selected_node.id);
+          model.addTransition(selected_node.id, selected_node.id,'preorders');
+          model.addTransition(selected_node.id, selected_node.id,'relations');
         }
       } else if (selected_link) {
         selected_link.type='R'

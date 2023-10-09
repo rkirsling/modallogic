@@ -16,15 +16,15 @@ var MPL = (function (FormulaParser) {
   var variableKey = 'prop';
 
   var unaries = [
-    { symbol: '~',  key: 'neg',  precedence: 4 },
-    { symbol: '[]', key: 'nec',  precedence: 4 },
+    { symbol: '~', key: 'neg', precedence: 4 },
+    { symbol: '[]', key: 'nec', precedence: 4 },
     { symbol: '<>', key: 'poss', precedence: 4 }
   ];
 
   var binaries = [
-    { symbol: '&',   key: 'conj', precedence: 3, associativity: 'right' },
-    { symbol: '|',   key: 'disj', precedence: 2, associativity: 'right' },
-    { symbol: '->',  key: 'impl', precedence: 1, associativity: 'right' },
+    { symbol: '&', key: 'conj', precedence: 3, associativity: 'right' },
+    { symbol: '|', key: 'disj', precedence: 2, associativity: 'right' },
+    { symbol: '->', key: 'impl', precedence: 1, associativity: 'right' },
     { symbol: '<->', key: 'equi', precedence: 0, associativity: 'right' }
   ];
 
@@ -69,13 +69,13 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _asciiToLaTeX(ascii) {
-    return ascii.replace(/~/g,      '\\lnot{}')
-                .replace(/\[\]/g,   '\\Box{}')
-                .replace(/<>/g,     '\\Diamond{}')
-                .replace(/ & /g,    '\\land{}')
-                .replace(/ \| /g,   '\\lor{}')
-                .replace(/ <-> /g,  '\\leftrightarrow{}')
-                .replace(/ -> /g,   '\\rightarrow{}');
+    return ascii.replace(/~/g, '\\lnot{}')
+      .replace(/\[\]/g, '\\Box{}')
+      .replace(/<>/g, '\\Diamond{}')
+      .replace(/ & /g, '\\land{}')
+      .replace(/ \| /g, '\\lor{}')
+      .replace(/ <-> /g, '\\leftrightarrow{}')
+      .replace(/ -> /g, '\\rightarrow{}');
   }
 
   /**
@@ -83,13 +83,13 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _asciiToUnicode(ascii) {
-    return ascii.replace(/~/g,    '\u00ac')
-                .replace(/\[\]/g, '\u25a1')
-                .replace(/<>/g,   '\u25ca')
-                .replace(/&/g,    '\u2227')
-                .replace(/\|/g,   '\u2228')
-                .replace(/<->/g,  '\u2194')
-                .replace(/->/g,   '\u2192');
+    return ascii.replace(/~/g, '\u00ac')
+      .replace(/\[\]/g, '\u25a1')
+      .replace(/<>/g, '\u25ca')
+      .replace(/&/g, '\u2227')
+      .replace(/\|/g, '\u2228')
+      .replace(/<->/g, '\u2194')
+      .replace(/->/g, '\u2192');
   }
 
   /**
@@ -128,9 +128,9 @@ var MPL = (function (FormulaParser) {
       return _unicode;
     };
 
-    _json    = (typeof asciiOrJSON === 'object') ? asciiOrJSON : _asciiToJSON(asciiOrJSON);
-    _ascii   = _jsonToASCII(_json);
-    _latex   = _asciiToLaTeX(_ascii);
+    _json = (typeof asciiOrJSON === 'object') ? asciiOrJSON : _asciiToJSON(asciiOrJSON);
+    _ascii = _jsonToASCII(_json);
+    _latex = _asciiToLaTeX(_ascii);
     _unicode = _asciiToUnicode(_ascii);
   }
 
@@ -142,40 +142,50 @@ var MPL = (function (FormulaParser) {
     // Array of states (worlds) in model.
     // Each state is an object with two properties:
     // - assignment: a truth assignment (in which only true values are actually stored)
-    // - successors: an array of successor state indices (in lieu of a separate accessibility relation)
-    // ex: [{assignment: {},          successors: [0,1]},
-    //      {assignment: {'p': true}, successors: []   }]
+    // - orders: an array of successor state indices
+    // - relations: an array of relation state indices
+    // ex: [{assignment: {},          preorders: [0,1],  relations: [2,4]},
+    //      {assignment: {'p': true}, preorders: [],     relations: []}]
     var _states = [];
 
     /**
      * Adds a transition to the model, given source and target state indices.
      */
-    this.addTransition = function (source, target) {
+    this.addTransition = function (source, target, type) {
       if (!_states[source] || !_states[target]) return;
 
-      var successors = _states[source].successors,
-          index = successors.indexOf(target);
+      var successors = _states[source][type],
+        index = successors.indexOf(target);
       if (index === -1) successors.push(target);
     };
 
     /**
      * Removes a transition from the model, given source and target state indices.
      */
-    this.removeTransition = function (source, target) {
+    this.removeTransition = function (source, target, type) {
       if (!_states[source]) return;
 
-      var successors = _states[source].successors,
-          index = successors.indexOf(target);
+      var successors = _states[source][type],
+        index = successors.indexOf(target);
       if (index !== -1) successors.splice(index, 1);
     };
 
     /**
-     * Returns an array of successor states for a given state index.
+     * Returns an array of preordered states for a given state index.
      */
-    this.getSuccessorsOf = function (source) {
+    this.getPreordersOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _states[source].successors;
+      return _states[source].preorders;
+    };
+
+    /**
+     * Returns an array of related states for a given state index.
+     */
+    this.getRelationsOf = function (source) {
+      if (!_states[source]) return undefined;
+
+      return _states[source].relations;
     };
 
     /**
@@ -187,7 +197,7 @@ var MPL = (function (FormulaParser) {
         if (assignment[propvar] === true)
           processedAssignment[propvar] = assignment[propvar];
 
-      _states.push({assignment: processedAssignment, successors: []});
+      _states.push({ assignment: processedAssignment, successors: [] });
     };
 
     /**
@@ -211,7 +221,8 @@ var MPL = (function (FormulaParser) {
 
       _states[state] = null;
       _states.forEach(function (source, index) {
-        if (source) self.removeTransition(index, state);
+        if (source) self.removeTransition(index, state,'preorders');
+        if (source) self.removeTransition(index, state,'relations');
       });
     };
 
@@ -267,8 +278,8 @@ var MPL = (function (FormulaParser) {
       _states = [];
 
       var self = this,
-          successorLists = [],
-          inputStates = modelString.split(';').slice(0, -1);
+        successorLists = [],
+        inputStates = modelString.split(';').slice(0, -1);
 
       // restore states
       inputStates.forEach(function (state) {
@@ -279,11 +290,11 @@ var MPL = (function (FormulaParser) {
         }
 
         var stateProperties = state.match(/A(.*)S(.*)/).slice(1, 3)
-                                   .map(function (substr) { return (substr ? substr.split(',') : []); });
+          .map(function (substr) { return (substr ? substr.split(',') : []); });
 
         var assignment = {};
         stateProperties[0].forEach(function (propvar) { assignment[propvar] = true; });
-        _states.push({assignment: assignment, successors: []});
+        _states.push({ assignment: assignment, preorders: [], relations:[] });
 
         var successors = stateProperties[1].map(function (succState) { return +succState; });
         successorLists.push(successors);
@@ -294,7 +305,7 @@ var MPL = (function (FormulaParser) {
         if (!successors) return;
 
         successors.forEach(function (target) {
-          self.addTransition(source, target);
+          self.addTransition(source, target,'preorders');
         });
       });
     };
