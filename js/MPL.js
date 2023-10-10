@@ -260,7 +260,8 @@ var MPL = (function (FormulaParser) {
       _states.forEach(function (state) {
         if (state) {
           modelString += 'A' + Object.keys(state.assignment).join();
-          modelString += 'S' + state.successors.join();
+          modelString += 'P' + state.preorders.join();
+          modelString += 'R' + state.relations.join();
         }
         modelString += ';';
       });
@@ -283,7 +284,7 @@ var MPL = (function (FormulaParser) {
         relationsLists = [],
         inputStates = modelString.split(';').slice(0, -1);
       console.log(inputStates)
-      
+
       // restore states
       inputStates.forEach(function (state) {
         if (!state) {
