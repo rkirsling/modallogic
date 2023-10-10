@@ -19,8 +19,9 @@ var propvars = ['p', 'q', 'r', 's', 't'],
   varCount = 2;
 
 var model = new MPL.Model(),
-  // modelString = 'ApqS1;ApS1,2;AqS;'; //This is where the initial model is loaded in
-  modelString = 'AS1,2;AS;AS;';
+  modelString = 'ApqP1R;ApPR2;AqPR;'
+// modelString = 'ApqS1;ApS1,2;AqS;'; //This is where the initial model is loaded in
+// modelString = 'AS1,2;AS;AS;';
 
 var modelParam = window.location.search.match(/\?model=(.*)/);
 if (modelParam) modelString = modelParam[1];
@@ -51,10 +52,11 @@ states.forEach(function (state) {
 // --> links setup
 nodes.forEach(function (source) {
   var sourceId = source.id,
-    successors = model.getPreordersOf(sourceId);
+    preorders = model.getPreordersOf(sourceId),
+    relations = model.getRelationsOf(sourceId);
 
-  successors.forEach(function (targetId) {
-    if (sourceId === targetId) {
+  preorders.forEach(function (targetId) {
+    if (sourceId === targetId) { //To change
       source.reflexive = true;
       return;
     }
@@ -66,10 +68,29 @@ nodes.forEach(function (source) {
       return;
     }
 
-    var link = links.filter(function (l) { return (l.source === target && l.target === source); })[0];
+    // var link = links.filter(function (l) { return (l.source === target && l.target === source); })[0];
 
-    if (link) link.left = true;
-    else links.push({ source: target, target: source, left: true, right: false, type: 'R' });
+    // if (link) link.left = true;
+    // else links.push({ source: target, target: source, left: true, right: false, type: 'R' });
+  });
+
+  relations.forEach(function (targetId) {
+    if (sourceId === targetId) { //To change
+      source.reflexive = true;
+      return;
+    }
+
+    var target = nodes.filter(function (node) { return node.id === targetId; })[0];
+
+    if (sourceId < targetId) {
+      links.push({ source: source, target: target, left: false, right: true, type: 'R' });
+      return;
+    }
+
+    // var link = links.filter(function (l) { return (l.source === target && l.target === source); })[0];
+
+    // if (link) link.left = true;
+    // else links.push({ source: target, target: source, left: true, right: false, type: 'R' });
   });
 });
 
@@ -142,6 +163,8 @@ var backdrop = d3.select('.modal-backdrop'),
   linkDialog = d3.select('#link-dialog'),
   linkInputElem = linkDialog.select('input').node();
 
+restart(); //Restart to set link types correctly
+
 function showLinkDialog() {
   linkInputElem.value = 'http://rkirsling.github.io/modallogic/?model=' + model.getModelString();
 
@@ -204,7 +227,7 @@ function evaluateFormula() {
   nodes.forEach(function (node, index) {
     var id = node.id,
       truthVal = MPL.truth(model, id, wff);
-    console.log("Testing node "+index)
+    console.log("Testing node " + index)
 
     if (truthVal) trueStates.push(id);
     else falseStates.push(id);
@@ -535,7 +558,7 @@ function removeLinkFromModel(link) {
   if (link.left) model.removeTransition(targetId, sourceId, link.type === 'P' ? 'preorders' : 'relations');
 
   // remove rightward transition
-  if (link.right) model.removeTransition(sourceId, targetId,link.type === 'P' ? 'preorders' : 'relations');
+  if (link.right) model.removeTransition(sourceId, targetId, link.type === 'P' ? 'preorders' : 'relations');
 }
 
 function spliceLinksForNode(node) {
@@ -621,15 +644,15 @@ function keydown() {
     case 82: // R
       if (selected_node) {
         // toggle node reflexivity
-        if (selected_node.reflexive) {
-          selected_node.reflexive = false;
-          model.removeTransition(selected_node.id, selected_node.id, 'preorders');
-          model.removeTransition(selected_node.id, selected_node.id, 'relations');
-        } else {
-          selected_node.reflexive = true;
-          model.addTransition(selected_node.id, selected_node.id, 'preorders');
-          model.addTransition(selected_node.id, selected_node.id, 'relations');
-        }
+        // if (selected_node.reflexive) {
+        //   selected_node.reflexive = false;
+        //   model.removeTransition(selected_node.id, selected_node.id, 'preorders');
+        //   model.removeTransition(selected_node.id, selected_node.id, 'relations');
+        // } else {
+        //   selected_node.reflexive = true;
+        //   model.addTransition(selected_node.id, selected_node.id, 'preorders');
+        //   model.addTransition(selected_node.id, selected_node.id, 'relations');
+        // }
       } else if (selected_link) {
         selected_link.type = 'R'
         //   var sourceId = selected_link.source.id,

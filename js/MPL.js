@@ -197,7 +197,7 @@ var MPL = (function (FormulaParser) {
         if (assignment[propvar] === true)
           processedAssignment[propvar] = assignment[propvar];
 
-      _states.push({ assignment: processedAssignment, successors: [] });
+      _states.push({ assignment: processedAssignment, preorders: [_states.length], relations: [] });
     };
 
     /**
@@ -272,40 +272,60 @@ var MPL = (function (FormulaParser) {
      * Restores a model from a given model string.
      */
     this.loadFromModelString = function (modelString) {
-      var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
+      // var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
+      var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:P|P(?:\d+,)*\d+)(?:R|R(?:\d+,)*\d+);)+$/;
       if (!regex.test(modelString)) return;
 
       _states = [];
 
       var self = this,
-        successorLists = [],
+        preordersLists = [],
+        relationsLists = [],
         inputStates = modelString.split(';').slice(0, -1);
-
+      console.log(inputStates)
+      
       // restore states
       inputStates.forEach(function (state) {
         if (!state) {
           _states.push(null);
-          successorLists.push(null);
+          preordersLists.push(null);
+          relationsLists.push(null);
           return;
         }
 
-        var stateProperties = state.match(/A(.*)S(.*)/).slice(1, 3)
+        // var stateProperties = state.match(/A(.*)S(.*)/).slice(1, 3)
+        var stateProperties = state.match(/A(.*)P(.*)R(.*)/).slice(1, 4)
           .map(function (substr) { return (substr ? substr.split(',') : []); });
+        console.log(stateProperties);
+
+        // console.log(state.match(/A(.*)S(.*)/));
+        // console.log(state.match(/A(.*)S(.*)/).slice(1, 3));
 
         var assignment = {};
         stateProperties[0].forEach(function (propvar) { assignment[propvar] = true; });
         _states.push({ assignment: assignment, preorders: [], relations: [] });
 
-        var successors = stateProperties[1].map(function (succState) { return +succState; });
-        successorLists.push(successors);
+        var preorders = stateProperties[1].map(function (succState) { return +succState; });
+        var relations = stateProperties[2].map(function (succState) { return +succState; });
+        preordersLists.push(preorders);
+        relationsLists.push(relations);
       });
 
       // restore transitions
-      successorLists.forEach(function (successors, source) {
+      preordersLists.forEach(function (successors, source) {
+        self.addTransition(source,source,'preorders'); //Enforce reflexivity - this should already be the case
         if (!successors) return;
 
         successors.forEach(function (target) {
           self.addTransition(source, target, 'preorders');
+        });
+      });
+      // restore transitions
+      relationsLists.forEach(function (successors, source) {
+        if (!successors) return;
+
+        successors.forEach(function (target) {
+          self.addTransition(source, target, 'relations');
         });
       });
     };
