@@ -149,17 +149,18 @@ var MPL = (function (FormulaParser) {
     var _states = [];
     var _preorders = [];
     var _relations = [];
+    var _transPreorders = [];
 
-    this.listSearch = function (l,s) {
-      return typeof l.find((e)=>e[0]===s[0]&&e[1]===s[1])!='undefined';
+    this.listSearch = function (l, s) {
+      return typeof l.find((e) => e[0] === s[0] && e[1] === s[1]) != 'undefined';
     }
     /**
     * Enforces transitive closure of preorders using Floyd-Warshall algorithm
     */
-    this.transitiveClosure = function (l) {
+    this.updateTransitiveClosure = function () {
       let l = _states.length;
 
-      let tempRelation = l;
+      let tempRelation = _preorders;
       // console.log(tempRelation)
       for (let k = 0; k < l; k++) {
 
@@ -168,16 +169,16 @@ var MPL = (function (FormulaParser) {
           for (let j = 0; j < l; j++) {
             // console.log('testing: ' + 'i:'+ i + ' j:'+ j +' k:'+ k)
             // console.log(tempRelation.indexOf([i, k]))
-            if (this.listSearch(tempRelation,[i, k]) && this.listSearch(tempRelation,[k, j])) {
+            if (this.listSearch(tempRelation, [i, k]) && this.listSearch(tempRelation, [k, j])) {
 
-              if (!this.listSearch(tempRelation,[i, j])) tempRelation.push([i, j]);
+              if (!this.listSearch(tempRelation, [i, j])) tempRelation.push([i, j]);
 
             }
           }
         }
       }
 
-      return tempRelation;
+      _transPreorders = tempRelation
     }
 
     /**
@@ -187,10 +188,9 @@ var MPL = (function (FormulaParser) {
       console.log("Adding: " + source + "," + target);
       if (!_states[source] || !_states[target]) return;
 
-      var successors = type === 'preorders' ? _preorders : _relations,
-        index = successors.indexOf([source, target]);
-      console.log(successors, index)
-      if (index === -1) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
+      var successors = type === 'preorders' ? _preorders : _relations
+      console.log(successors)
+      if (!this.listSearch(successors,[source,target])) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -198,6 +198,7 @@ var MPL = (function (FormulaParser) {
       // _states.filter((s)=>{
       //   s.preorders
       // })
+      this.updateTransitiveClosure(_preorders)
     };
 
     /**
@@ -221,6 +222,16 @@ var MPL = (function (FormulaParser) {
 
       return _preorders.filter((e) => e[0] == source).map((e) => e[1]);
     };
+
+    /**
+     * Returns an array of transitive preordered states for a given state index.
+     */
+    this.getTransPreordersOf = function (source) {
+      if (!_states[source]) return undefined;
+
+      return _transPreorders.filter((e) => e[0] == source).map((e) => e[1]);
+    };
+
 
     /**
      * Returns an array of related states for a given state index.
@@ -264,8 +275,8 @@ var MPL = (function (FormulaParser) {
       // var self = this;
 
       _states[state] = null;
-      _preorders = _preorders.filter((e) => !e.contains(source));
-      _relations = _relations.filter((e) => !e.contains(source));
+      _preorders = _preorders.filter((e) => !e.includes(state));
+      _relations = _relations.filter((e) => !e.includes(state));
     };
 
     /**
@@ -394,7 +405,7 @@ var MPL = (function (FormulaParser) {
     else if (json.equi)
       return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
     else if (json.nec) {
-      return model.getPreordersOf(state).every(world1 => {
+      return model.getTransPreordersOf(state).every(world1 => {
         console.log('preorder:' + world1)
         return model.getRelationsOf(world1).every(world2 => {
           console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.nec))
@@ -404,7 +415,7 @@ var MPL = (function (FormulaParser) {
     }
     // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
     else if (json.poss) {
-      return model.getPreordersOf(state).some(world1 => {
+      return model.getTransPreordersOf(state).some(world1 => {
         console.log('preorder:' + world1)
         return model.getRelationsOf(world1).some(world2 => {
           console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.poss))
