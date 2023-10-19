@@ -161,11 +161,13 @@ var MPL = (function (FormulaParser) {
      * Adds a transition to the model, given source and target state indices.
      */
     this.addTransition = function (source, target, type) {
+      console.log("Adding: "+source+","+target);
       if (!_states[source] || !_states[target]) return;
 
-      var successors = type==='preorders' ? _preorders : _relations
+      var successors = type==='preorders' ? _preorders : _relations,
         index = successors.indexOf([source,target]);
-      if (index === -1) successors.push([source,target]);
+      console.log(successors,index)
+      if (index === -1) type==='preorders'? _preorders.push([source,target]) : _relations.push([source,target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -328,6 +330,8 @@ var MPL = (function (FormulaParser) {
         preordersLists.push(preorders);
         relationsLists.push(relations);
       });
+
+      console.log(preordersLists,relationsLists)
 
       // restore transitions
       preordersLists.forEach(function (successors, source) {
