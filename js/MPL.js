@@ -147,6 +147,8 @@ var MPL = (function (FormulaParser) {
     // ex: [{assignment: {},          preorders: [0,1],  relations: [2,4]},
     //      {assignment: {'p': true}, preorders: [],     relations: []}]
     var _states = [];
+    var _preorders = []
+    var _relations = []
 
     /**
     * Checks transitivity of preorders
@@ -161,9 +163,9 @@ var MPL = (function (FormulaParser) {
     this.addTransition = function (source, target, type) {
       if (!_states[source] || !_states[target]) return;
 
-      var successors = _states[source][type],
-        index = successors.indexOf(target);
-      if (index === -1) successors.push(target);
+      var successors = type==='preorders' ? _preorders : _relations
+        index = successors.indexOf([source,target]);
+      if (index === -1) successors.push([source,target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -179,9 +181,11 @@ var MPL = (function (FormulaParser) {
     this.removeTransition = function (source, target, type) {
       if (!_states[source]) return;
 
-      var successors = _states[source][type],
-        index = successors.indexOf(target);
-      if (index !== -1) successors.splice(index, 1);
+      if(type==='preorders'){
+        _preorders.splice([source,target],1);
+      } else {
+        _relations.splice([source,target],1);
+      }
     };
 
     /**
@@ -190,7 +194,7 @@ var MPL = (function (FormulaParser) {
     this.getPreordersOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _states[source].preorders;
+      return _preorders.filter((e)=>e[0]==source).map((e)=>e[1]);
     };
 
     /**
@@ -199,7 +203,7 @@ var MPL = (function (FormulaParser) {
     this.getRelationsOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _states[source].relations;
+      return _relations.filter((e)=>e[0]==source).map((e)=>e[1]);
     };
 
     /**
@@ -212,6 +216,7 @@ var MPL = (function (FormulaParser) {
           processedAssignment[propvar] = assignment[propvar];
 
       _states.push({ assignment: processedAssignment, preorders: [_states.length], relations: [] });
+      _preorders.push([_states.length-1,_states.length-1]);
     };
 
     /**
@@ -231,13 +236,11 @@ var MPL = (function (FormulaParser) {
      */
     this.removeState = function (state) {
       if (!_states[state]) return;
-      var self = this;
+      // var self = this;
 
       _states[state] = null;
-      _states.forEach(function (source, index) {
-        if (source) self.removeTransition(index, state, 'preorders');
-        if (source) self.removeTransition(index, state, 'relations');
-      });
+      _preorders = _preorders.filter((e)=>!e.contains(source))
+      _relations = _relations.filter((e)=>!e.contains(source))
     };
 
     /**
