@@ -147,27 +147,50 @@ var MPL = (function (FormulaParser) {
     // ex: [{assignment: {},          preorders: [0,1],  relations: [2,4]},
     //      {assignment: {'p': true}, preorders: [],     relations: []}]
     var _states = [];
-    var _preorders = []
-    var _relations = []
+    var _preorders = [];
+    var _relations = [];
 
+    this.listSearch = function (l,s) {
+      return typeof l.find((e)=>e[0]===s[0]&&e[1]===s[1])!='undefined';
+    }
     /**
-    * Checks transitivity of preorders
+    * Enforces transitive closure of preorders using Floyd-Warshall algorithm
     */
-    this.getTransitive = function () {
+    this.transitiveClosure = function (l) {
+      let l = _states.length;
 
+      let tempRelation = l;
+      // console.log(tempRelation)
+      for (let k = 0; k < l; k++) {
+
+        for (let i = 0; i < l; i++) {
+
+          for (let j = 0; j < l; j++) {
+            // console.log('testing: ' + 'i:'+ i + ' j:'+ j +' k:'+ k)
+            // console.log(tempRelation.indexOf([i, k]))
+            if (this.listSearch(tempRelation,[i, k]) && this.listSearch(tempRelation,[k, j])) {
+
+              if (!this.listSearch(tempRelation,[i, j])) tempRelation.push([i, j]);
+
+            }
+          }
+        }
+      }
+
+      return tempRelation;
     }
 
     /**
      * Adds a transition to the model, given source and target state indices.
      */
     this.addTransition = function (source, target, type) {
-      console.log("Adding: "+source+","+target);
+      console.log("Adding: " + source + "," + target);
       if (!_states[source] || !_states[target]) return;
 
-      var successors = type==='preorders' ? _preorders : _relations,
-        index = successors.indexOf([source,target]);
-      console.log(successors,index)
-      if (index === -1) type==='preorders'? _preorders.push([source,target]) : _relations.push([source,target]);
+      var successors = type === 'preorders' ? _preorders : _relations,
+        index = successors.indexOf([source, target]);
+      console.log(successors, index)
+      if (index === -1) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -183,10 +206,10 @@ var MPL = (function (FormulaParser) {
     this.removeTransition = function (source, target, type) {
       if (!_states[source]) return;
 
-      if(type==='preorders'){
-        _preorders.splice([source,target],1);
+      if (type === 'preorders') {
+        _preorders.splice([source, target], 1);
       } else {
-        _relations.splice([source,target],1);
+        _relations.splice([source, target], 1);
       }
     };
 
@@ -196,7 +219,7 @@ var MPL = (function (FormulaParser) {
     this.getPreordersOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _preorders.filter((e)=>e[0]==source).map((e)=>e[1]);
+      return _preorders.filter((e) => e[0] == source).map((e) => e[1]);
     };
 
     /**
@@ -205,7 +228,7 @@ var MPL = (function (FormulaParser) {
     this.getRelationsOf = function (source) {
       if (!_states[source]) return undefined;
 
-      return _relations.filter((e)=>e[0]==source).map((e)=>e[1]);
+      return _relations.filter((e) => e[0] == source).map((e) => e[1]);
     };
 
     /**
@@ -218,7 +241,7 @@ var MPL = (function (FormulaParser) {
           processedAssignment[propvar] = assignment[propvar];
 
       _states.push({ assignment: processedAssignment, preorders: [_states.length], relations: [] });
-      _preorders.push([_states.length-1,_states.length-1]);
+      _preorders.push([_states.length - 1, _states.length - 1]);
     };
 
     /**
@@ -241,8 +264,8 @@ var MPL = (function (FormulaParser) {
       // var self = this;
 
       _states[state] = null;
-      _preorders = _preorders.filter((e)=>!e.contains(source))
-      _relations = _relations.filter((e)=>!e.contains(source))
+      _preorders = _preorders.filter((e) => !e.contains(source));
+      _relations = _relations.filter((e) => !e.contains(source));
     };
 
     /**
@@ -331,7 +354,7 @@ var MPL = (function (FormulaParser) {
         relationsLists.push(relations);
       });
 
-      console.log(preordersLists,relationsLists)
+      console.log(preordersLists, relationsLists)
 
       // restore transitions
       preordersLists.forEach(function (successors, source) {
