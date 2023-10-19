@@ -149,6 +149,13 @@ var MPL = (function (FormulaParser) {
     var _states = [];
 
     /**
+    * Checks transitivity of preorders
+    */
+    this.getTransitive = function () {
+
+    }
+
+    /**
      * Adds a transition to the model, given source and target state indices.
      */
     this.addTransition = function (source, target, type) {
@@ -157,6 +164,13 @@ var MPL = (function (FormulaParser) {
       var successors = _states[source][type],
         index = successors.indexOf(target);
       if (index === -1) successors.push(target);
+
+      // self.getPreordersOf(target).forEach((w)=>{
+      //   self.addTransition(source,w,'preorders');
+      // })
+      // _states.filter((s)=>{
+      //   s.preorders
+      // })
     };
 
     /**
@@ -314,7 +328,7 @@ var MPL = (function (FormulaParser) {
 
       // restore transitions
       preordersLists.forEach(function (successors, source) {
-        self.addTransition(source,source,'preorders'); //Enforce reflexivity - this should already be the case
+        self.addTransition(source, source, 'preorders'); //Enforce reflexivity - this should already be the case
         if (!successors) return;
 
         successors.forEach(function (target) {
