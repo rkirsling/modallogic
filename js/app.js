@@ -316,7 +316,7 @@ function setVarForSelectedNode(varnum, value) {
   selected_node.vals[varnum] = value;
   var update = {};
   update[propvars[varnum]] = value;
-  model.editState(selected_node.id, update);
+  if(!model.editState(selected_node.id, update)) {alert("This would violate monotonicity");return false};
 
   //update buttons
   var row = d3.select(varTableRows[0][varnum]);

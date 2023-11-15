@@ -292,6 +292,7 @@ var MPL = (function (FormulaParser) {
       for (var propvar in assignment)
         if (assignment[propvar] === true) stateAssignment[propvar] = true;
         else if (assignment[propvar] === false) delete stateAssignment[propvar];
+      return true;
     };
 
     /**
