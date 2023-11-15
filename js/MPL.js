@@ -235,6 +235,14 @@ var MPL = (function (FormulaParser) {
     };
 
     /**
+     * Returns an array of previous preordered states for a given state index.
+     */
+    this.getPastPreordersOf = function (source) {
+      if (!_states[source]) return undefined;
+
+      return _preorders.filter((e) => e[1] == source).map((e) => e[0]);
+    };
+    /**
      * Returns an array of transitive preordered states for a given state index.
      */
     this.getTransPreordersOf = function (source) {
@@ -274,6 +282,7 @@ var MPL = (function (FormulaParser) {
       //TODO - check that futures are not invalidated by cahnge of state
       var stateAssignment = _states[state].assignment;
 
+      //checks that futurs are not invalidated
       var futures = this.getPreordersOf(state);
       // console.log(futures)
       if (Object.keys(assignment).every((p) => {
@@ -287,6 +296,23 @@ var MPL = (function (FormulaParser) {
         console.log("nope");
         return false;
       }
+
+      //check that past is not invalidated
+      var pasts = this.getPastPreordersOf(state);
+      console.log("past", pasts)
+      // console.log(futures)
+      if (Object.keys(assignment).every((p) => {
+        console.log(assignment[p]);
+        if (assignment[p]) return true;
+
+        return pasts.every((f) => { console.log(f, p, this.valuation(p, f)); return f === state || !this.valuation(p, f) })
+      })) {
+        console.log("fine!");
+      } else {
+        console.log("nope");
+        return false;
+      }
+
 
       // console.log(stateAssignment, assignment);
       for (var propvar in assignment)

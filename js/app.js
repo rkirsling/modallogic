@@ -313,10 +313,10 @@ function setArrowType(value) {
 
 function setVarForSelectedNode(varnum, value) {
   //update node in graph and state in model
-  selected_node.vals[varnum] = value;
   var update = {};
   update[propvars[varnum]] = value;
   if(!model.editState(selected_node.id, update)) {alert("This would violate monotonicity");return false};
+  selected_node.vals[varnum] = value;
 
   //update buttons
   var row = d3.select(varTableRows[0][varnum]);
