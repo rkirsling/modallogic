@@ -19,7 +19,7 @@ var propvars = ['p', 'q', 'r', 's', 't'],
   varCount = 2;
 
 var model = new MPL.Model(),
-  modelString = 'ApqP1R;ApPR2;AqPR;'
+  modelString = 'AP1R;ApPR2;ApqPR;'
 // modelString = 'ApqS1;ApS1,2;AqS;'; //This is where the initial model is loaded in
 // modelString = 'AS1,2;AS;AS;';
 
@@ -443,7 +443,7 @@ function restart() {
       d3.select(this).attr('transform', '');
 
       // add transition to model
-      model.addTransition(mousedown_node.id, mouseup_node.id, d3.select('#btnArrowPreorder').classed('active') ? 'preorders' : 'relations');
+      if (!model.addTransition(mousedown_node.id, mouseup_node.id, d3.select('#btnArrowPreorder').classed('active') ? 'preorders' : 'relations')) return;
 
       // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans

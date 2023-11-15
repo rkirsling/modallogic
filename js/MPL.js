@@ -186,11 +186,21 @@ var MPL = (function (FormulaParser) {
      */
     this.addTransition = function (source, target, type) {
       console.log("Adding: " + source + "," + target);
-      if (!_states[source] || !_states[target]) return;
+      if (!_states[source] || !_states[target]) return false;
 
+      // Check that monotonicity holds
+      if (type === 'preorders') {
+        let sState = Object.keys(_states[source].assignment),
+          tState = Object.keys(_states[target].assignment)
+
+        if (sState.every((e) => {
+          console.log(e)
+          return tState.includes(e);
+        })) { console.log("fine!") } else { console.log("nope"); return false }
+      }
       var successors = type === 'preorders' ? _preorders : _relations
       console.log(successors)
-      if (!this.listSearch(successors,[source,target])) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
+      if (!this.listSearch(successors, [source, target])) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -199,6 +209,7 @@ var MPL = (function (FormulaParser) {
       //   s.preorders
       // })
       this.updateTransitiveClosure(_preorders)
+      return true
     };
 
     /**
@@ -259,9 +270,25 @@ var MPL = (function (FormulaParser) {
      * Edits the assignment of a state in the model, given a state index and a new partial assignment.
      */
     this.editState = function (state, assignment) {
-      if (!_states[state]) return;
-
+      if (!_states[state]) return false;
+      //TODO - check that futures are not invalidated by cahnge of state
       var stateAssignment = _states[state].assignment;
+
+      var futures = this.getPreordersOf(state);
+      // console.log(futures)
+      if (Object.keys(assignment).every((p) => {
+        console.log(assignment[p]);
+        if (!assignment[p]) return true;
+
+        return futures.every((f) => { console.log(f, p, this.valuation(p, f)); return f === state || this.valuation(p, f) })
+      })) {
+        console.log("fine!");
+      } else {
+        console.log("nope");
+        return false;
+      }
+
+      // console.log(stateAssignment, assignment);
       for (var propvar in assignment)
         if (assignment[propvar] === true) stateAssignment[propvar] = true;
         else if (assignment[propvar] === false) delete stateAssignment[propvar];
@@ -311,7 +338,7 @@ var MPL = (function (FormulaParser) {
       self = this
       var modelString = '';
 
-      _states.forEach(function (state,i) {
+      _states.forEach(function (state, i) {
         if (state) {
           modelString += 'A' + Object.keys(state.assignment).join();
           modelString += 'P' + self.getPreordersOf(i).join();
@@ -351,13 +378,14 @@ var MPL = (function (FormulaParser) {
         // var stateProperties = state.match(/A(.*)S(.*)/).slice(1, 3)
         var stateProperties = state.match(/A(.*)P(.*)R(.*)/).slice(1, 4)
           .map(function (substr) { return (substr ? substr.split(',') : []); });
-        console.log(stateProperties);
 
+        if (stateProperties[0].length == 0) { stateProperties[0] = [''] }
         // console.log(state.match(/A(.*)S(.*)/));
         // console.log(state.match(/A(.*)S(.*)/).slice(1, 3));
-
+        console.log(stateProperties[0])
         var assignment = {};
-        stateProperties[0].forEach(function (propvar) { assignment[propvar] = true; });
+        stateProperties[0][0].split('').forEach(function (propvar) { assignment[propvar] = true; });
+        console.log(assignment, state)
         _states.push({ assignment: assignment, preorders: [], relations: [] });
 
         var preorders = stateProperties[1].map(function (succState) { return +succState; });
