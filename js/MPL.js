@@ -8,24 +8,25 @@
  * Released under the MIT License.
  */
 var MPL = (function (FormulaParser) {
-  'use strict';
+  "use strict";
 
   // begin formula-parser setup
-  if (typeof FormulaParser === 'undefined') throw new Error('MPL could not find dependency: formula-parser');
+  if (typeof FormulaParser === "undefined")
+    throw new Error("MPL could not find dependency: formula-parser");
 
-  var variableKey = 'prop';
+  var variableKey = "prop";
 
   var unaries = [
-    { symbol: '~', key: 'neg', precedence: 4 },
-    { symbol: '[]', key: 'nec', precedence: 4 },
-    { symbol: '<>', key: 'poss', precedence: 4 }
+    { symbol: "~", key: "neg", precedence: 4 },
+    { symbol: "[]", key: "nec", precedence: 4 },
+    { symbol: "<>", key: "poss", precedence: 4 },
   ];
 
   var binaries = [
-    { symbol: '&', key: 'conj', precedence: 3, associativity: 'right' },
-    { symbol: '|', key: 'disj', precedence: 2, associativity: 'right' },
-    { symbol: '->', key: 'impl', precedence: 1, associativity: 'right' },
-    { symbol: '<->', key: 'equi', precedence: 0, associativity: 'right' }
+    { symbol: "&", key: "conj", precedence: 3, associativity: "right" },
+    { symbol: "|", key: "disj", precedence: 2, associativity: "right" },
+    { symbol: "->", key: "impl", precedence: 1, associativity: "right" },
+    { symbol: "<->", key: "equi", precedence: 0, associativity: "right" },
   ];
 
   var MPLParser = new FormulaParser(variableKey, unaries, binaries);
@@ -44,24 +45,43 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _jsonToASCII(json) {
-    if (json.prop)
-      return json.prop;
-    else if (json.neg)
-      return '~' + _jsonToASCII(json.neg);
-    else if (json.nec)
-      return '[]' + _jsonToASCII(json.nec);
-    else if (json.poss)
-      return '<>' + _jsonToASCII(json.poss);
+    if (json.prop) return json.prop;
+    else if (json.neg) return "~" + _jsonToASCII(json.neg);
+    else if (json.nec) return "[]" + _jsonToASCII(json.nec);
+    else if (json.poss) return "<>" + _jsonToASCII(json.poss);
     else if (json.conj && json.conj.length === 2)
-      return '(' + _jsonToASCII(json.conj[0]) + ' & ' + _jsonToASCII(json.conj[1]) + ')';
+      return (
+        "(" +
+        _jsonToASCII(json.conj[0]) +
+        " & " +
+        _jsonToASCII(json.conj[1]) +
+        ")"
+      );
     else if (json.disj && json.disj.length === 2)
-      return '(' + _jsonToASCII(json.disj[0]) + ' | ' + _jsonToASCII(json.disj[1]) + ')';
+      return (
+        "(" +
+        _jsonToASCII(json.disj[0]) +
+        " | " +
+        _jsonToASCII(json.disj[1]) +
+        ")"
+      );
     else if (json.impl && json.impl.length === 2)
-      return '(' + _jsonToASCII(json.impl[0]) + ' -> ' + _jsonToASCII(json.impl[1]) + ')';
+      return (
+        "(" +
+        _jsonToASCII(json.impl[0]) +
+        " -> " +
+        _jsonToASCII(json.impl[1]) +
+        ")"
+      );
     else if (json.equi && json.equi.length === 2)
-      return '(' + _jsonToASCII(json.equi[0]) + ' <-> ' + _jsonToASCII(json.equi[1]) + ')';
-    else
-      throw new Error('Invalid JSON for formula!');
+      return (
+        "(" +
+        _jsonToASCII(json.equi[0]) +
+        " <-> " +
+        _jsonToASCII(json.equi[1]) +
+        ")"
+      );
+    else throw new Error("Invalid JSON for formula!");
   }
 
   /**
@@ -69,13 +89,14 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _asciiToLaTeX(ascii) {
-    return ascii.replace(/~/g, '\\lnot{}')
-      .replace(/\[\]/g, '\\Box{}')
-      .replace(/<>/g, '\\Diamond{}')
-      .replace(/ & /g, '\\land{}')
-      .replace(/ \| /g, '\\lor{}')
-      .replace(/ <-> /g, '\\leftrightarrow{}')
-      .replace(/ -> /g, '\\rightarrow{}');
+    return ascii
+      .replace(/~/g, "\\lnot{}")
+      .replace(/\[\]/g, "\\Box{}")
+      .replace(/<>/g, "\\Diamond{}")
+      .replace(/ & /g, "\\land{}")
+      .replace(/ \| /g, "\\lor{}")
+      .replace(/ <-> /g, "\\leftrightarrow{}")
+      .replace(/ -> /g, "\\rightarrow{}");
   }
 
   /**
@@ -83,13 +104,14 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _asciiToUnicode(ascii) {
-    return ascii.replace(/~/g, '\u00ac')
-      .replace(/\[\]/g, '\u25a1')
-      .replace(/<>/g, '\u25ca')
-      .replace(/&/g, '\u2227')
-      .replace(/\|/g, '\u2228')
-      .replace(/<->/g, '\u2194')
-      .replace(/->/g, '\u2192');
+    return ascii
+      .replace(/~/g, "\u00ac")
+      .replace(/\[\]/g, "\u25a1")
+      .replace(/<>/g, "\u25ca")
+      .replace(/&/g, "\u2227")
+      .replace(/\|/g, "\u2228")
+      .replace(/<->/g, "\u2194")
+      .replace(/->/g, "\u2192");
   }
 
   /**
@@ -98,7 +120,10 @@ var MPL = (function (FormulaParser) {
    */
   function Wff(asciiOrJSON) {
     // Strings for the four representations: ASCII, JSON, LaTeX, and Unicode.
-    var _ascii = '', _json = '', _latex = '', _unicode = '';
+    var _ascii = "",
+      _json = "",
+      _latex = "",
+      _unicode = "";
 
     /**
      * Returns the ASCII representation of an MPL wff.
@@ -128,7 +153,8 @@ var MPL = (function (FormulaParser) {
       return _unicode;
     };
 
-    _json = (typeof asciiOrJSON === 'object') ? asciiOrJSON : _asciiToJSON(asciiOrJSON);
+    _json =
+      typeof asciiOrJSON === "object" ? asciiOrJSON : _asciiToJSON(asciiOrJSON);
     _ascii = _jsonToASCII(_json);
     _latex = _asciiToLaTeX(_ascii);
     _unicode = _asciiToUnicode(_ascii);
@@ -152,34 +178,36 @@ var MPL = (function (FormulaParser) {
     var _transPreorders = [];
 
     this.listSearch = function (l, s) {
-      return typeof l.find((e) => e[0] === s[0] && e[1] === s[1]) != 'undefined';
-    }
+      return (
+        typeof l.find((e) => e[0] === s[0] && e[1] === s[1]) != "undefined"
+      );
+    };
     /**
-    * Enforces transitive closure of preorders using Floyd-Warshall algorithm
-    */
+     * Enforces transitive closure of preorders using Floyd-Warshall algorithm
+     */
     this.updateTransitiveClosure = function () {
       let l = _states.length;
 
       let tempRelation = _preorders;
       // console.log(tempRelation)
       for (let k = 0; k < l; k++) {
-
         for (let i = 0; i < l; i++) {
-
           for (let j = 0; j < l; j++) {
             // console.log('testing: ' + 'i:'+ i + ' j:'+ j +' k:'+ k)
             // console.log(tempRelation.indexOf([i, k]))
-            if (this.listSearch(tempRelation, [i, k]) && this.listSearch(tempRelation, [k, j])) {
-
-              if (!this.listSearch(tempRelation, [i, j])) tempRelation.push([i, j]);
-
+            if (
+              this.listSearch(tempRelation, [i, k]) &&
+              this.listSearch(tempRelation, [k, j])
+            ) {
+              if (!this.listSearch(tempRelation, [i, j]))
+                tempRelation.push([i, j]);
             }
           }
         }
       }
 
-      _transPreorders = tempRelation
-    }
+      _transPreorders = tempRelation;
+    };
 
     /**
      * Adds a transition to the model, given source and target state indices.
@@ -189,18 +217,28 @@ var MPL = (function (FormulaParser) {
       if (!_states[source] || !_states[target]) return false;
 
       // Check that monotonicity holds
-      if (type === 'preorders') {
+      if (type === "preorders") {
         let sState = Object.keys(_states[source].assignment),
-          tState = Object.keys(_states[target].assignment)
+          tState = Object.keys(_states[target].assignment);
 
-        if (sState.every((e) => {
-          console.log(e)
-          return tState.includes(e);
-        })) { console.log("fine!") } else { console.log("nope"); return false }
+        if (
+          sState.every((e) => {
+            console.log(e);
+            return tState.includes(e);
+          })
+        ) {
+          console.log("fine!");
+        } else {
+          console.log("nope");
+          return false;
+        }
       }
-      var successors = type === 'preorders' ? _preorders : _relations
-      console.log(successors)
-      if (!this.listSearch(successors, [source, target])) type === 'preorders' ? _preorders.push([source, target]) : _relations.push([source, target]);
+      var successors = type === "preorders" ? _preorders : _relations;
+      console.log(successors);
+      if (!this.listSearch(successors, [source, target]))
+        type === "preorders"
+          ? _preorders.push([source, target])
+          : _relations.push([source, target]);
 
       // self.getPreordersOf(target).forEach((w)=>{
       //   self.addTransition(source,w,'preorders');
@@ -208,8 +246,8 @@ var MPL = (function (FormulaParser) {
       // _states.filter((s)=>{
       //   s.preorders
       // })
-      this.updateTransitiveClosure(_preorders)
-      return true
+      this.updateTransitiveClosure(_preorders);
+      return true;
     };
 
     /**
@@ -218,7 +256,7 @@ var MPL = (function (FormulaParser) {
     this.removeTransition = function (source, target, type) {
       if (!_states[source]) return;
 
-      if (type === 'preorders') {
+      if (type === "preorders") {
         _preorders.splice([source, target], 1);
       } else {
         _relations.splice([source, target], 1);
@@ -251,7 +289,6 @@ var MPL = (function (FormulaParser) {
       return _transPreorders.filter((e) => e[0] == source).map((e) => e[1]);
     };
 
-
     /**
      * Returns an array of related states for a given state index.
      */
@@ -270,7 +307,11 @@ var MPL = (function (FormulaParser) {
         if (assignment[propvar] === true)
           processedAssignment[propvar] = assignment[propvar];
 
-      _states.push({ assignment: processedAssignment, preorders: [_states.length], relations: [] });
+      _states.push({
+        assignment: processedAssignment,
+        preorders: [_states.length],
+        relations: [],
+      });
       _preorders.push([_states.length - 1, _states.length - 1]);
     };
 
@@ -285,12 +326,17 @@ var MPL = (function (FormulaParser) {
       //checks that futurs are not invalidated
       var futures = this.getPreordersOf(state);
       // console.log(futures)
-      if (Object.keys(assignment).every((p) => {
-        console.log(assignment[p]);
-        if (!assignment[p]) return true;
+      if (
+        Object.keys(assignment).every((p) => {
+          console.log(assignment[p]);
+          if (!assignment[p]) return true;
 
-        return futures.every((f) => { console.log(f, p, this.valuation(p, f)); return f === state || this.valuation(p, f) })
-      })) {
+          return futures.every((f) => {
+            console.log(f, p, this.valuation(p, f));
+            return f === state || this.valuation(p, f);
+          });
+        })
+      ) {
         console.log("fine!");
       } else {
         console.log("nope");
@@ -299,20 +345,24 @@ var MPL = (function (FormulaParser) {
 
       //check that past is not invalidated
       var pasts = this.getPastPreordersOf(state);
-      console.log("past", pasts)
+      console.log("past", pasts);
       // console.log(futures)
-      if (Object.keys(assignment).every((p) => {
-        console.log(assignment[p]);
-        if (assignment[p]) return true;
+      if (
+        Object.keys(assignment).every((p) => {
+          console.log(assignment[p]);
+          if (assignment[p]) return true;
 
-        return pasts.every((f) => { console.log(f, p, this.valuation(p, f)); return f === state || !this.valuation(p, f) })
-      })) {
+          return pasts.every((f) => {
+            console.log(f, p, this.valuation(p, f));
+            return f === state || !this.valuation(p, f);
+          });
+        })
+      ) {
         console.log("fine!");
       } else {
         console.log("nope");
         return false;
       }
-
 
       // console.log(stateAssignment, assignment);
       for (var propvar in assignment)
@@ -351,7 +401,7 @@ var MPL = (function (FormulaParser) {
      * Returns the truth value of a given propositional variable at a given state index.
      */
     this.valuation = function (propvar, state) {
-      if (!_states[state]) throw new Error('State ' + state + ' not found!');
+      if (!_states[state]) throw new Error("State " + state + " not found!");
 
       return !!_states[state].assignment[propvar];
     };
@@ -362,16 +412,16 @@ var MPL = (function (FormulaParser) {
      *     compresses to 'AqS0,2;;AS;'
      */
     this.getModelString = function () {
-      self = this
-      var modelString = '';
+      self = this;
+      var modelString = "";
 
       _states.forEach(function (state, i) {
         if (state) {
-          modelString += 'A' + Object.keys(state.assignment).join();
-          modelString += 'P' + self.getPreordersOf(i).join();
-          modelString += 'R' + self.getRelationsOf(i).join();
+          modelString += "A" + Object.keys(state.assignment).join();
+          modelString += "P" + self.getPreordersOf(i).join();
+          modelString += "R" + self.getRelationsOf(i).join();
         }
-        modelString += ';';
+        modelString += ";";
       });
 
       return modelString;
@@ -382,7 +432,8 @@ var MPL = (function (FormulaParser) {
      */
     this.loadFromModelString = function (modelString) {
       // var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:S|S(?:\d+,)*\d+);)+$/;
-      var regex = /^(?:;|(?:A|A(?:\w+,)*\w+)(?:P|P(?:\d+,)*\d+)(?:R|R(?:\d+,)*\d+);)+$/;
+      var regex =
+        /^(?:;|(?:A|A(?:\w+,)*\w+)(?:P|P(?:\d+,)*\d+)(?:R|R(?:\d+,)*\d+);)+$/;
       if (!regex.test(modelString)) return;
 
       _states = [];
@@ -390,8 +441,8 @@ var MPL = (function (FormulaParser) {
       var self = this,
         preordersLists = [],
         relationsLists = [],
-        inputStates = modelString.split(';').slice(0, -1);
-      console.log(inputStates)
+        inputStates = modelString.split(";").slice(0, -1);
+      console.log(inputStates);
 
       // restore states
       inputStates.forEach(function (state) {
@@ -403,33 +454,45 @@ var MPL = (function (FormulaParser) {
         }
 
         // var stateProperties = state.match(/A(.*)S(.*)/).slice(1, 3)
-        var stateProperties = state.match(/A(.*)P(.*)R(.*)/).slice(1, 4)
-          .map(function (substr) { return (substr ? substr.split(',') : []); });
+        var stateProperties = state
+          .match(/A(.*)P(.*)R(.*)/)
+          .slice(1, 4)
+          .map(function (substr) {
+            return substr ? substr.split(",") : [];
+          });
 
-        if (stateProperties[0].length == 0) { stateProperties[0] = [''] }
+        if (stateProperties[0].length == 0) {
+          stateProperties[0] = [""];
+        }
         // console.log(state.match(/A(.*)S(.*)/));
         // console.log(state.match(/A(.*)S(.*)/).slice(1, 3));
-        console.log(stateProperties[0])
+        console.log(stateProperties[0]);
         var assignment = {};
-        stateProperties[0][0].split('').forEach(function (propvar) { assignment[propvar] = true; });
-        console.log(assignment, state)
+        stateProperties[0][0].split("").forEach(function (propvar) {
+          assignment[propvar] = true;
+        });
+        console.log(assignment, state);
         _states.push({ assignment: assignment, preorders: [], relations: [] });
 
-        var preorders = stateProperties[1].map(function (succState) { return +succState; });
-        var relations = stateProperties[2].map(function (succState) { return +succState; });
+        var preorders = stateProperties[1].map(function (succState) {
+          return +succState;
+        });
+        var relations = stateProperties[2].map(function (succState) {
+          return +succState;
+        });
         preordersLists.push(preorders);
         relationsLists.push(relations);
       });
 
-      console.log(preordersLists, relationsLists)
+      console.log(preordersLists, relationsLists);
 
       // restore transitions
       preordersLists.forEach(function (successors, source) {
-        self.addTransition(source, source, 'preorders'); //Enforce reflexivity - this should already be the case
+        self.addTransition(source, source, "preorders"); //Enforce reflexivity - this should already be the case
         if (!successors) return;
 
         successors.forEach(function (target) {
-          self.addTransition(source, target, 'preorders');
+          self.addTransition(source, target, "preorders");
         });
       });
       // restore transitions
@@ -437,7 +500,7 @@ var MPL = (function (FormulaParser) {
         if (!successors) return;
 
         successors.forEach(function (target) {
-          self.addTransition(source, target, 'relations');
+          self.addTransition(source, target, "relations");
         });
       });
     };
@@ -448,49 +511,61 @@ var MPL = (function (FormulaParser) {
    * @private
    */
   function _truth(model, state, json) {
-    if (json.prop)
-      return model.valuation(json.prop, state);
-    else if (json.neg)
-      return !_truth(model, state, json.neg);
+    if (json.prop) return model.valuation(json.prop, state);
+    else if (json.neg) return !_truth(model, state, json.neg);
     else if (json.conj)
-      return (_truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1]));
+      return (
+        _truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1])
+      );
     else if (json.disj)
-      return (_truth(model, state, json.disj[0]) || _truth(model, state, json.disj[1]));
+      return (
+        _truth(model, state, json.disj[0]) || _truth(model, state, json.disj[1])
+      );
     else if (json.impl)
-      return (!_truth(model, state, json.impl[0]) || _truth(model, state, json.impl[1]));
+      return (
+        !_truth(model, state, json.impl[0]) ||
+        _truth(model, state, json.impl[1])
+      );
     else if (json.equi)
-      return (_truth(model, state, json.equi[0]) === _truth(model, state, json.equi[1]));
+      return (
+        _truth(model, state, json.equi[0]) ===
+        _truth(model, state, json.equi[1])
+      );
     else if (json.nec) {
-      return model.getTransPreordersOf(state).every(world1 => {
-        console.log('preorder:' + world1)
-        return model.getRelationsOf(world1).every(world2 => {
-          console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.nec))
-          return _truth(model, world2, json.nec)
-        })
+      return model.getTransPreordersOf(state).every((world1) => {
+        console.log("preorder:" + world1);
+        return model.getRelationsOf(world1).every((world2) => {
+          console.log(
+            "relation:" + world2 + " is " + _truth(model, world2, json.nec)
+          );
+          return _truth(model, world2, json.nec);
+        });
       });
     }
     // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
     else if (json.poss) {
-      return model.getTransPreordersOf(state).some(world1 => {
-        console.log('preorder:' + world1)
-        return model.getRelationsOf(world1).some(world2 => {
-          console.log('relation:' + world2 + ' is ' + _truth(model, world2, json.poss))
-          return _truth(model, world2, json.poss)
-        })
+      return model.getTransPreordersOf(state).some((world1) => {
+        console.log("preorder:" + world1);
+        return model.getRelationsOf(world1).some((world2) => {
+          console.log(
+            "relation:" + world2 + " is " + _truth(model, world2, json.poss)
+          );
+          return _truth(model, world2, json.poss);
+        });
       });
     }
     // return model.getSuccessorsOf(state).some(function (succState) { return _truth(model, succState, json.poss); });
-    else
-      throw new Error('Invalid formula!');
+    else throw new Error("Invalid formula!");
   }
 
   /**
    * Evaluate the truth of an MPL wff at a given state within a given model.
    */
   function truth(model, state, wff) {
-    if (!(model instanceof MPL.Model)) throw new Error('Invalid model!');
-    if (!model.getStates()[state]) throw new Error('State ' + state + ' not found!');
-    if (!(wff instanceof MPL.Wff)) throw new Error('Invalid wff!');
+    if (!(model instanceof MPL.Model)) throw new Error("Invalid model!");
+    if (!model.getStates()[state])
+      throw new Error("State " + state + " not found!");
+    if (!(wff instanceof MPL.Wff)) throw new Error("Invalid wff!");
 
     return _truth(model, state, wff.json());
   }
@@ -499,8 +574,6 @@ var MPL = (function (FormulaParser) {
   return {
     Wff: Wff,
     Model: Model,
-    truth: truth
+    truth: truth,
   };
-
 })(FormulaParser);
-
