@@ -343,7 +343,7 @@ function makeAssignmentString(node) {
 
   for (var i = 0; i < varCount; i++) {
     // attach 'not' symbol to false values
-    outputVars.push((vals[i] ? "" : "\u00ac") + propvars[i]);
+    if (vals[i]) outputVars.push(propvars[i]);
   }
 
   return outputVars.join(", ");
