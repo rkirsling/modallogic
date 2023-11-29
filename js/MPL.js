@@ -514,7 +514,12 @@ var MPL = (function (FormulaParser) {
     console.log(json);
     if (json.bot) return false;
     else if (json.prop) return model.valuation(json.prop, state);
-    else if (json.neg) return _truth(model, state, { impl: [json.neg , {bot: true}] });
+    else if (json.neg) {
+      return model.getTransPreordersOf(state).every((world) => {
+
+	return _truth(model, world, { impl: [json.neg , {bot: true}] });
+      });
+    }
     else if (json.conj)
       return (
         _truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1])
