@@ -512,8 +512,9 @@ var MPL = (function (FormulaParser) {
    */
   function _truth(model, state, json) {
     console.log(json);
-    if (json.prop) return model.valuation(json.prop, state);
-    else if (json.neg) return !_truth(model, state, { poss: json.neg });
+    if (json.bot) return false;
+    else if (json.prop) return model.valuation(json.prop, state);
+    else if (json.neg) return _truth(model, state, { impl: [json.neg , {bot: true}] });
     else if (json.conj)
       return (
         _truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1])
