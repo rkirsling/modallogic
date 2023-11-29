@@ -177,13 +177,17 @@ var MPL = (function (FormulaParser) {
     var _relations = [];
     var _transPreorders = [];
 
+    /**
+     * Search for a 'tuple' in a list of 'tuples'. eg [2,3] in [[1,2],[5,6],[2,3]] => true
+     */
     this.listSearch = function (l, s) {
       return (
         typeof l.find((e) => e[0] === s[0] && e[1] === s[1]) != "undefined"
       );
     };
+
     /**
-     * Enforces transitive closure of preorders using Floyd-Warshall algorithm
+     * Generates transitive closure of preorders using Floyd-Warshall algorithm
      */
     this.updateTransitiveClosure = function () {
       let l = _states.length;
