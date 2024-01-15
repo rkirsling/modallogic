@@ -373,6 +373,10 @@ function setArrowType(value) {
   d3.select("#btnArrowPreorder").classed("active", "preorder" === value);
 }
 
+function toggleRule(ruleIndex) {
+  model.updateRule(ruleIndex);
+}
+
 function setVarForSelectedNode(varnum, value) {
   //update node in graph and state in model
   var update = {};
@@ -567,8 +571,10 @@ function restart() {
             ? "preorders"
             : "relations"
         )
-      )
+      ) {
+        alert("This would violate monotonicity");
         return;
+      }
 
       // add link to graph (update if exists)
       // note: links are strictly source < target; arrows separately specified by booleans
@@ -660,10 +666,10 @@ function mousedown() {
 
 function mousemove() {
   if (!mousedown_node) return;
-  console.log(
-    "Moving line to:" + "d",
-    "M" + mousedown_node.x + "," + mousedown_node.y + "L" + d3.mouse(this)
-  );
+  // console.log(
+  //   "Moving line to:" + "d",
+  //   "M" + mousedown_node.x + "," + mousedown_node.y + "L" + d3.mouse(this)
+  // );
   // update drag line
   drag_line.attr(
     "d",

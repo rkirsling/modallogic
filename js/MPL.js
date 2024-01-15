@@ -176,7 +176,48 @@ var MPL = (function (FormulaParser) {
     var _preorders = [];
     var _relations = [];
     var _transPreorders = [];
+    var _transRelations = [];
 
+    var _preordersToEval = [];
+    var _relationsToEval = [];
+
+    var _rules = [false, false];
+
+    this.updateRule = function (i) {
+      _rules[i] = !_rules[i];
+      console.log(_rules);
+    };
+
+    /**
+     * This will take a list of lists of 'tuples' and unify them into one list unique
+     */
+
+    this.unify = function (ls) {
+      var out = [];
+      ls.forEach((l) => {
+        l.forEach((e) => {
+          // console.log(e);
+          if (!this.listSearch(out, e)) out.push(e);
+        });
+      });
+      return out;
+    };
+
+    /**
+     * Generate reflexives of all nodes
+     */
+
+    this.generateReflexive = function () {
+      return _states.map((_, i) => {
+        return [i, i];
+      });
+    };
+    /**
+     * Remove a 'tuple' from a list of 'tuples'. eg [2,3] in [[1,2],[5,6],[2,3]] => [[1,2],[5,6]]
+     */
+    this.listRemove = function (l, s) {
+      return l.filter((e) => !(e[0] === s[0] && e[1] === s[1]));
+    };
     /**
      * Search for a 'tuple' in a list of 'tuples'. eg [2,3] in [[1,2],[5,6],[2,3]] => true
      */
@@ -187,12 +228,12 @@ var MPL = (function (FormulaParser) {
     };
 
     /**
-     * Generates transitive closure of preorders using Floyd-Warshall algorithm
+     * Generates transitive closure of a tuple list using Floyd-Warshall algorithm
      */
-    this.updateTransitiveClosure = function () {
+    this.updateTransitiveClosure = function (typeS) {
       let l = _states.length;
 
-      let tempRelation = _preorders;
+      let tempRelation = typeS == "preorders" ? _preorders : _relations;
       // console.log(tempRelation)
       for (let k = 0; k < l; k++) {
         for (let i = 0; i < l; i++) {
@@ -209,8 +250,13 @@ var MPL = (function (FormulaParser) {
           }
         }
       }
-
-      _transPreorders = tempRelation;
+      if (typeS == "preorders") {
+        _transPreorders = tempRelation;
+        console.log("Set preorders to ", tempRelation);
+      } else {
+        _transRelations = tempRelation;
+        console.log("Set relation to ", tempRelation);
+      }
     };
 
     /**
@@ -250,7 +296,7 @@ var MPL = (function (FormulaParser) {
       // _states.filter((s)=>{
       //   s.preorders
       // })
-      this.updateTransitiveClosure(_preorders);
+      this.updateTransitiveClosure("preorders");
       return true;
     };
 
@@ -259,11 +305,13 @@ var MPL = (function (FormulaParser) {
      */
     this.removeTransition = function (source, target, type) {
       if (!_states[source]) return;
-
+      console.log("removing: " + type + source + target);
       if (type === "preorders") {
-        _preorders.splice([source, target], 1);
+        _preorders = this.listRemove(_preorders, [source, target]);
+        console.log(_preorders);
+        this.updateTransitiveClosure("preorders");
       } else {
-        _relations.splice([source, target], 1);
+        _relations = this.listRemove(_relations, [source, target]);
       }
     };
 
@@ -273,6 +321,14 @@ var MPL = (function (FormulaParser) {
     this.getPreordersOf = function (source) {
       if (!_states[source]) return undefined;
 
+      console.log(
+        "Looking up",
+        source,
+        "in",
+        _preorders,
+        "returning",
+        _preorders.filter((e) => e[0] == source).map((e) => e[1])
+      );
       return _preorders.filter((e) => e[0] == source).map((e) => e[1]);
     };
 
@@ -284,6 +340,21 @@ var MPL = (function (FormulaParser) {
 
       return _preorders.filter((e) => e[1] == source).map((e) => e[0]);
     };
+
+    this.getUsedPreordersOf = function (source) {
+      if (!_states[source]) return undefined;
+
+      console.log(
+        "Looking up",
+        source,
+        "in",
+        _preordersToEval,
+        "returning",
+        _preordersToEval.filter((e) => e[0] == source).map((e) => e[1])
+      );
+      return _preordersToEval.filter((e) => e[0] == source).map((e) => e[1]);
+    };
+
     /**
      * Returns an array of transitive preordered states for a given state index.
      */
@@ -302,6 +373,12 @@ var MPL = (function (FormulaParser) {
       return _relations.filter((e) => e[0] == source).map((e) => e[1]);
     };
 
+    this.getUsedRelationsOf = function (source) {
+      if (!_states[source]) return undefined;
+      console.log("Looking up", source, "in", _relationsToEval);
+
+      return _relationsToEval.filter((e) => e[0] == source).map((e) => e[1]);
+    };
     /**
      * Adds a state with a given assignment to the model.
      */
@@ -508,6 +585,20 @@ var MPL = (function (FormulaParser) {
         });
       });
     };
+
+    this._pretruth = function () {
+      this.updateTransitiveClosure("preorders");
+      this.updateTransitiveClosure("relations");
+      _preordersToEval = _transPreorders;
+      console.log("p to eval:", this._preordersToEval);
+
+      var relationsToUnify = [_relations];
+      if (_rules[0]) relationsToUnify.push(this.generateReflexive());
+      console.log("r to unify:", relationsToUnify);
+      _relationsToEval = this.unify(relationsToUnify);
+      console.log("relations to eval:", _relationsToEval);
+      // return _truth(model, state, json);
+    };
   }
 
   /**
@@ -520,11 +611,9 @@ var MPL = (function (FormulaParser) {
     else if (json.prop) return model.valuation(json.prop, state);
     else if (json.neg) {
       return model.getTransPreordersOf(state).every((world) => {
-
-	return _truth(model, world, { impl: [json.neg , {bot: true}] });
+        return _truth(model, world, { impl: [json.neg, { bot: true }] });
       });
-    }
-    else if (json.conj)
+    } else if (json.conj)
       return (
         _truth(model, state, json.conj[0]) && _truth(model, state, json.conj[1])
       );
@@ -543,9 +632,9 @@ var MPL = (function (FormulaParser) {
         _truth(model, state, json.equi[1])
       );
     else if (json.nec) {
-      return model.getTransPreordersOf(state).every((world1) => {
+      return model.getUsedPreordersOf(state).every((world1) => {
         console.log("preorder:" + world1);
-        return model.getRelationsOf(world1).every((world2) => {
+        return model.getUsedRelationsOf(world1).every((world2) => {
           console.log(
             "relation:" + world2 + " is " + _truth(model, world2, json.nec)
           );
@@ -555,9 +644,9 @@ var MPL = (function (FormulaParser) {
     }
     // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
     else if (json.poss) {
-      return model.getTransPreordersOf(state).some((world1) => {
+      return model.getUsedPreordersOf(state).some((world1) => {
         console.log("preorder:" + world1);
-        return model.getRelationsOf(world1).some((world2) => {
+        return model.getUsedRelationsOf(world1).some((world2) => {
           console.log(
             "relation:" + world2 + " is " + _truth(model, world2, json.poss)
           );
@@ -577,7 +666,7 @@ var MPL = (function (FormulaParser) {
     if (!model.getStates()[state])
       throw new Error("State " + state + " not found!");
     if (!(wff instanceof MPL.Wff)) throw new Error("Invalid wff!");
-
+    model._pretruth();
     return _truth(model, state, wff.json());
   }
 
