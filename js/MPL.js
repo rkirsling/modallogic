@@ -202,6 +202,39 @@ var MPL = (function (FormulaParser) {
       });
       return out;
     };
+    /**
+     * Generates required nodes, preorders and relations to satisfy confluence
+     */
+
+    this.generateConfluence = function () {
+      /* Basic algorithm: 
+	 1. Check if the required nodes exist - will this need multiple parses?
+	 2. Until all nodes exist, generate a new node (ensure this only goes forwards!)
+	 3. Generate any new connections
+	 4. Repeat algorithm
+	 */
+
+      let preOut = _preorders.map(identity);
+      let relOut = _relations.map(identity);
+      let statesOut = _states.map(identity);
+      let l = statesOut.length;
+
+      for (let k = 0; k < l; k++) {
+        for (let i = 0; i < l; i++) {
+          for (let j = 0; j < l; j++) {
+            console.log("testing: " + "i:" + i + " j:" + j + " k:" + k);
+            if (
+              // if there is some i, j, k s.t. i<j and iRk -> this means there must be some m s.t. jRm, k<m
+              this.listSearch(preOut, [i, k]) &&
+              this.listSearch(relOut, [i, j])
+            ) {
+              if (!this.listSearch(tempRelation, [i, j]))
+                tempRelation.push([i, j]);
+            }
+          }
+        }
+      }
+    };
 
     /**
      * Generate reflexives of all nodes
@@ -644,7 +677,7 @@ var MPL = (function (FormulaParser) {
     }
     // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
     else if (json.poss) {
-      return model.getUsedPreordersOf(state).some((world1) => {
+      return model.getUsedPreordersOf(state).every((world1) => {
         console.log("preorder:" + world1);
         return model.getUsedRelationsOf(world1).some((world2) => {
           console.log(
