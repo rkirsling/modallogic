@@ -203,37 +203,33 @@ var MPL = (function (FormulaParser) {
       return out;
     };
     /**
-     * Generates required nodes, preorders and relations to satisfy confluence
+     * Checks required nodes, preorders and relations to satisfy confluence exist
      */
 
-    this.generateConfluence = function () {
-      /* Basic algorithm: 
-	 1. Check if the required nodes exist - will this need multiple parses?
-	 2. Until all nodes exist, generate a new node (ensure this only goes forwards!)
-	 3. Generate any new connections
-	 4. Repeat algorithm
-	 */
-
-      let preOut = _preorders.map(identity);
-      let relOut = _relations.map(identity);
-      let statesOut = _states.map(identity);
-      let l = statesOut.length;
-
-      for (let k = 0; k < l; k++) {
-        for (let i = 0; i < l; i++) {
-          for (let j = 0; j < l; j++) {
-            console.log("testing: " + "i:" + i + " j:" + j + " k:" + k);
+    this.checkConfluence = function () {
+      let l = _states.length;
+      return _states.every((_, i) => {
+        return _states.every((_, j) => {
+          return _states.every((_, k) => {
+            console.log("Checking ", i, j, k);
             if (
               // if there is some i, j, k s.t. i<j and iRk -> this means there must be some m s.t. jRm, k<m
-              this.listSearch(preOut, [i, k]) &&
-              this.listSearch(relOut, [i, j])
+              this.listSearch(_preorders, [i, k]) &&
+              this.listSearch(_relations, [i, j])
             ) {
-              if (!this.listSearch(tempRelation, [i, j]))
-                tempRelation.push([i, j]);
+              console.log("!Selected ", i, j, k);
+              return _states.some((_, m) => {
+                return (
+                  this.listSearch(_preorders, [j, m]) &&
+                  this.listSearch(_relations, [k, m])
+                );
+              });
+            } else {
+              return true;
             }
-          }
-        }
-      }
+          });
+        });
+      });
     };
 
     /**
@@ -630,6 +626,11 @@ var MPL = (function (FormulaParser) {
       console.log("r to unify:", relationsToUnify);
       _relationsToEval = this.unify(relationsToUnify);
       console.log("relations to eval:", _relationsToEval);
+
+      if (_rules[1] && !this.checkConfluence)
+        return false, "Confluence check failed";
+
+      return true, "";
       // return _truth(model, state, json);
     };
   }
@@ -699,7 +700,8 @@ var MPL = (function (FormulaParser) {
     if (!model.getStates()[state])
       throw new Error("State " + state + " not found!");
     if (!(wff instanceof MPL.Wff)) throw new Error("Invalid wff!");
-    model._pretruth();
+    let _pretruthOut = model._pretruth();
+    if (!_pretruthOut[0]) return _pretruthOut[1];
     return _truth(model, state, wff.json());
   }
 
