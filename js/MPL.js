@@ -181,7 +181,7 @@ var MPL = (function (FormulaParser) {
     var _preordersToEval = [];
     var _relationsToEval = [];
 
-    var _rules = [false, false];
+    var _rules = [false, false, false];
 
     this.updateRule = function (i) {
       _rules[i] = !_rules[i];
@@ -206,7 +206,8 @@ var MPL = (function (FormulaParser) {
      * Checks required nodes, preorders and relations to satisfy confluence exist
      */
 
-    this.checkConfluence = function () {
+    this.checkForwardConfluence = function () {
+      //console.log("Checking confluence", _states);
       let l = _states.length;
       return _states.every((_, i) => {
         return _states.every((_, j) => {
@@ -219,6 +220,7 @@ var MPL = (function (FormulaParser) {
             ) {
               console.log("!Selected ", i, j, k);
               return _states.some((_, m) => {
+                console.log("checking", m);
                 return (
                   this.listSearch(_preorders, [j, m]) &&
                   this.listSearch(_relations, [k, m])
@@ -625,13 +627,18 @@ var MPL = (function (FormulaParser) {
       if (_rules[0]) relationsToUnify.push(this.generateReflexive());
       console.log("r to unify:", relationsToUnify);
       _relationsToEval = this.unify(relationsToUnify);
-      console.log("relations to eval:", _relationsToEval);
+      console.log("!relations to eval:", _relationsToEval);
+      console.log(_rules);
 
-      if (_rules[1] && !this.checkConfluence)
-        return false, "Confluence check failed";
+      if (_rules[1] && !this.checkForwardConfluence())
+        return "Confluence check failed";
 
-      return true, "";
+      return "";
       // return _truth(model, state, json);
+    };
+
+    this.getRules = function () {
+      return _rules;
     };
   }
 
@@ -678,18 +685,36 @@ var MPL = (function (FormulaParser) {
     }
     // return model.getSuccessorsOf(state).every(function (succState) { return _truth(model, succState, json.nec); });
     else if (json.poss) {
-      return model.getUsedPreordersOf(state).every((world1) => {
-        console.log("preorder:" + world1);
-        return model.getUsedRelationsOf(world1).some((world2) => {
-          console.log(
-            "relation:" + world2 + " is " + _truth(model, world2, json.poss)
-          );
-          return _truth(model, world2, json.poss);
+      if (!model.getRules()[2]) {
+        return model.getUsedPreordersOf(state).every((world1) => {
+          console.log("preorder:" + world1);
+          return model.getUsedRelationsOf(world1).some((world2) => {
+            console.log(
+              "relation:" + world2 + " is " + _truth(model, world2, json.poss)
+            );
+            return _truth(model, world2, json.poss);
+          });
         });
-      });
+      } else {
+        console.log("Using local diamond");
+        return model.getUsedRelationsOf(state).some((world1) => {
+          console.log(
+            "relation:" + world1 + " is " + _truth(model, world1, json.poss)
+          );
+          return _truth(model, world1, json.poss);
+        });
+      }
     }
     // return model.getSuccessorsOf(state).some(function (succState) { return _truth(model, succState, json.poss); });
     else throw new Error("Invalid formula!");
+  }
+
+  /**
+   * Ensure that model is suitable for evaluation
+   */
+
+  function pretruth(model) {
+    return model._pretruth();
   }
 
   /**
@@ -700,8 +725,8 @@ var MPL = (function (FormulaParser) {
     if (!model.getStates()[state])
       throw new Error("State " + state + " not found!");
     if (!(wff instanceof MPL.Wff)) throw new Error("Invalid wff!");
-    let _pretruthOut = model._pretruth();
-    if (!_pretruthOut[0]) return _pretruthOut[1];
+    // let _pretruthOut = model._pretruth();
+    // if (!_pretruthOut[0]) return false, _pretruthOut[1];
     return _truth(model, state, wff.json());
   }
 
@@ -710,5 +735,6 @@ var MPL = (function (FormulaParser) {
     Wff: Wff,
     Model: Model,
     truth: truth,
+    pretruth: pretruth,
   };
 })(FormulaParser);

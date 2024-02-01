@@ -265,6 +265,14 @@ function evaluateFormula() {
     return;
   }
 
+  // prepare model for evaluation
+  let pretruth = MPL.pretruth(model);
+  console.log(pretruth);
+  if (pretruth != "") {
+    alert(pretruth);
+    return;
+  }
+
   // evaluate formula at each state in model
   var trueStates = [],
     falseStates = [];
